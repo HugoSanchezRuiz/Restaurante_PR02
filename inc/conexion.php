@@ -1,17 +1,15 @@
 <?php
 
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+$dbserver = "localhost";
+$dbusername = "root";
+$dbpassword = "";
+$dbbasedatos = "bd_restaurante2";
 
-$dbserver= "localhost";
-$dbusername="root";
-$dbpassword="";
-$dbbasedatos="bd_restaurante";
-
-try{
-    $conn = @mysqli_connect($dbserver, $dbusername, $dbpassword, $dbbasedatos);
-
-
-} catch (Exception $e){
+try {
+    $conn = new PDO("mysql:host=$dbserver;dbname=$dbbasedatos", $dbusername, $dbpassword);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // echo "Conexión exitosa con la base de datos";
+} catch (PDOException $e) {
     echo "Error en la conexión con la base de datos: " . $e->getMessage();
     die();
 }
