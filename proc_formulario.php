@@ -10,23 +10,21 @@ if (isset($_POST['usuario'])) {
     $usuario = $_POST['usuario'];
 
     // Incluir el archivo de funciones
-    require_once('./funciones.php');
+    // require_once('./funciones.php');
     // Incluir el archivo de conexión a la base de datos
     include_once("./inc/conexion.php");
 
     // Verificar si el usuario ya existe en la base de datos
-    $sql_check = "SELECT nombre, contra FROM tbl_camarero WHERE nombre = ?";
-    $stmt_check = mysqli_stmt_init($conn);
-
-    mysqli_stmt_prepare($stmt_check, $sql_check);
-    mysqli_stmt_bind_param($stmt_check, "s", $usuario);
-    mysqli_stmt_execute($stmt_check);
+    $sql_check = "SELECT nombre_usuario, contrasena FROM tbl_usuario WHERE nombre_usuario = ?";
+    $stmt_check = $conn->prepare($sql_check);
+    $stmt_check->bindParam(1, $usuario);
+    $stmt_check->execute();
 
     // Guardamos el resultado
-    mysqli_stmt_store_result($stmt_check);
+    $result_check = $stmt_check->fetch(PDO::FETCH_ASSOC);
 
     // Verificamos si se encontró algún resultado
-    if (mysqli_stmt_num_rows($stmt_check) === 0) {
+    if (!$result_check) {
         // El usuario no existe, agregar un mensaje de error a la variable $errores que se mostrará en en la página anterior 
         $errores = '?nombreNotExist=true';
     } else {
@@ -35,15 +33,12 @@ if (isset($_POST['usuario'])) {
         $pwdEncriptada = hash("sha256", $pwd);
 
         // Consulta para obtener la contraseña almacenada en la base de datos
-        $sql_password = "SELECT contra FROM tbl_camarero WHERE nombre = ?";
-        $stmt_password = mysqli_stmt_init($conn);
-
-        mysqli_stmt_prepare($stmt_password, $sql_password);
-        mysqli_stmt_bind_param($stmt_password, "s", $usuario);
-        mysqli_stmt_execute($stmt_password);
-        mysqli_stmt_bind_result($stmt_password, $stored_password);
-        mysqli_stmt_fetch($stmt_password);
-        mysqli_stmt_close($stmt_password);
+        $sql_password = "SELECT contrasena FROM tbl_usuario WHERE nombre_usuario = ?";
+        $stmt_password = $conn->prepare($sql_password);
+        $stmt_password->bindParam(1, $usuario);
+        $stmt_password->execute();
+        $stored_password = $stmt_password->fetchColumn();
+        $stmt_password->closeCursor();
 
         // Verificar si la contraseña ingresada coincide con la almacenada en la base de datos
         if (hash_equals($pwdEncriptada, $stored_password)) {
@@ -55,7 +50,7 @@ if (isset($_POST['usuario'])) {
             header("Location: ./sessiones.php?" . $datosDevueltos);
             exit();
         } else {
-            // La contraseña no coincide, agregar un mensaje de error a la variable $errores que aparecera en la página de index.php
+            // La contraseña no coincide, agregar un mensaje de error a la variable $errores que aparecerá en la página de index.php
             $errores = '?passwdIncorrect=true';
         }
     }

@@ -13,19 +13,20 @@
     <label for="id_sala">ID Sala:</label>
     <select name="id_sala" id="id_sala" required>
         <?php
-        include_once("./inc/conexion.php");
+        try {
+            include_once("./inc/conexion.php");
 
-        if (!$conn) {
-            die("Error de conexión: " . mysqli_connect_error());
+            $stmt = $conn->query("SELECT id_sala, nombre FROM tbl_sala");
+            $salas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($salas as $sala) {
+                echo "<option value='" . $sala['id_sala'] . "'>" . $sala['nombre'] . "</option>";
+            }
+        } catch (PDOException $e) {
+            echo "Error de conexión: " . $e->getMessage();
+        } finally {
+            $conn = null;
         }
-
-        $result = mysqli_query($conn, "SELECT id_sala, nombre FROM tbl_sala");
-
-        while ($row = mysqli_fetch_assoc($result)) {
-            echo "<option value='" . $row['id_sala'] . "'>" . $row['nombre'] . "</option>";
-        }
-
-        mysqli_close($conn);
         ?>
     </select>
     <br>

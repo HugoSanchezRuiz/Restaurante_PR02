@@ -13,19 +13,20 @@
     <label for="id_mesa">Seleccionar Mesa a Borrar:</label>
     <select name="id_mesa" id="id_mesa" required>
         <?php
-        include_once("./inc/conexion.php");
+        try {
+            include_once("./inc/conexion.php");
 
-        if (!$conn) {
-            die("Error de conexión: " . mysqli_connect_error());
+            $stmt = $conn->query("SELECT id_mesa, id_sala, capacidad FROM tbl_mesa");
+            $mesas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($mesas as $mesa) {
+                echo "<option value='" . $mesa['id_mesa'] . "'>Mesa " . $mesa['id_mesa'] . " - Sala " . $mesa['id_sala'] . " (Capacidad: " . $mesa['capacidad'] . ")</option>";
+            }
+        } catch (PDOException $e) {
+            echo "Error de conexión: " . $e->getMessage();
+        } finally {
+            $conn = null;
         }
-
-        $result = mysqli_query($conn, "SELECT id_mesa, id_sala, capacidad FROM tbl_mesa");
-
-        while ($row = mysqli_fetch_assoc($result)) {
-            echo "<option value='" . $row['id_mesa'] . "'>Mesa " . $row['id_mesa'] . " - Sala " . $row['id_sala'] . " (Capacidad: " . $row['capacidad'] . ")</option>";
-        }
-
-        mysqli_close($conn);
         ?>
     </select>
     <br>

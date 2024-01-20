@@ -3,41 +3,40 @@ session_start();
 
 include_once('./inc/conexion.php');
 
-if (isset($_POST['id_mesa'])) {
+if (isset($_GET['id_mesa'])) {
+    $id_mesa = $_GET['id_mesa'];
 
-    $id_mesa = $_POST['id_mesa'];
-    try{
-        mysqli_autocommit($conn,false);
-        mysqli_begin_transaction($conn, MYSQLI_TRANS_START_READ_WRITE);
+    try {
+        $conn->beginTransaction();
 
-        $sql1 = "DELETE FROM tbl_ocupacion WHERE id_mesa = ?;";
-        $stmt1 = mysqli_stmt_init($conn);
-        mysqli_stmt_prepare($stmt1, $sql1);
-        mysqli_stmt_bind_param($stmt1, "i", $id_mesa);
-        mysqli_stmt_execute($stmt1);
+        // 1. Eliminar filas en tbl_ocupacion
+        $sql1 = "DELETE FROM tbl_ocupacion WHERE id_mesa = :id_mesa";
+        $stmt1 = $conn->prepare($sql1);
+        $stmt1->bindParam(':id_mesa', $id_mesa, PDO::PARAM_INT);
+        $stmt1->execute();
 
-        $sql2 = "DELETE FROM tbl_mesa WHERE id_mesa = ?;";
-        $stmt2 = mysqli_stmt_init($conn);
-        mysqli_stmt_prepare($stmt2, $sql2);
-        mysqli_stmt_bind_param($stmt2, "i", $id_mesa);
-        mysqli_stmt_execute($stmt2);
+        // 2. Eliminar filas en tbl_silla
+        $sql2 = "DELETE FROM tbl_silla WHERE id_mesa = :id_mesa";
+        $stmt2 = $conn->prepare($sql2);
+        $stmt2->bindParam(':id_mesa', $id_mesa, PDO::PARAM_INT);
+        $stmt2->execute();
 
-        mysqli_commit($conn);
+        // 3. Eliminar fila en tbl_mesa
+        $sql3 = "DELETE FROM tbl_mesa WHERE id_mesa = :id_mesa";
+        $stmt3 = $conn->prepare($sql3);
+        $stmt3->bindParam(':id_mesa', $id_mesa, PDO::PARAM_INT);
+        $stmt3->execute();
 
+        $conn->commit();
 
-        mysqli_stmt_close($stmt1);
-        mysqli_stmt_close($stmt2);
-        mysqli_close($conn);
-
-        header('Location: ./mostrar_mesas.php');
-
-    }catch (Exception $e){
-            mysqli_rollback($conn);
-            echo "Error: ".$e -> getMessage()."<br>";
+        header('Location: ./admin.php');
+        exit();
+    } catch (PDOException $e) {
+        $conn->rollBack();
+        echo "Error: " . $e->getMessage() . "<br>";
     }
-
 } else {
-
     header('Location:  ./index.php');
-   
+    exit();
 }
+?>

@@ -70,7 +70,7 @@
             <br>
             <br>
             <br>
-<!-- Creamos una clase que lo que hará que cuando salten las validaciones de php se muestre la letra en color rojo -->
+            <!-- Creamos una clase que lo que hará que cuando salten las validaciones de php se muestre la letra en color rojo -->
             <div class="error-container">
                 <?php if (isset($_GET['nombreNotExist'])) {
                     echo "El usuario o la contraseña esta incorrecto";

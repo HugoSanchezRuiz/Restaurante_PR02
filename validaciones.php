@@ -27,45 +27,47 @@ if (!isset($_POST['inicio'])) {
     // Incluye el archivo que contiene la conexión a la base de datos.
     include_once("./conexion.php");
 
-    // Resto del código para validar el inicio de sesión...
+    try {
+        // Se prepara una consulta SQL para seleccionar datos de la tabla "tbl_camarero" donde el campo "nombre" sea igual al valor de la variable $nombre.
+        $query = "SELECT id_camarero, contra FROM tbl_camarero WHERE nombre = ?";
+        $stmt = $conn->prepare($query);
 
-    // Se prepara una consulta SQL para seleccionar datos de la tabla "tbl_camarero" donde el campo "nombre" sea igual al valor de la variable $nombre.
-    $query = "SELECT id_camarero, contra FROM tbl_camarero WHERE nombre = ?";
-    $stmt = mysqli_prepare($conn, $query); // Se prepara la consulta SQL en la conexión $conn.
+        // Se vincula el valor de $nombre como un parámetro en la consulta SQL (tipo string).
+        $stmt->bindParam(1, $nombre, PDO::PARAM_STR);
+        // Se ejecuta la consulta con el valor $nombre.
+        $stmt->execute();
 
-    // Se vincula el valor de $nombre como un parámetro en la consulta SQL (tipo string).
-    mysqli_stmt_bind_param($stmt, "s", $nombre);
-    // Se ejecuta la consulta con el valor $nombre.
-    mysqli_stmt_execute($stmt);
-    // Se almacena el resultado de la consulta.
-    mysqli_stmt_store_result($stmt);
+        // Si la consulta devuelve al menos una fila (es decir, el nombre existe en la base de datos).
+        if ($stmt->rowCount() > 0) {
+            // Se obtienen los valores de las columnas en las variables correspondientes.
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $id_camarero = $row['id_camarero'];
+            $hashedContra = $row['contra'];
 
-    // Si la consulta devuelve al menos una fila (es decir, el nombre existe en la base de datos).
-    if (mysqli_stmt_num_rows($stmt) > 0) {
-        // Se vinculan las columnas de la consulta con variables PHP.
-        mysqli_stmt_bind_result($stmt, $id_camarero, $hashedContra);
-        // Se obtienen los valores de las columnas en las variables correspondientes.
-        mysqli_stmt_fetch($stmt);
-        // Se verifica si la contraseña proporcionada ($contra) coincide con la contraseña almacenada en la base de datos ($hashedContra).
-        if (password_verify($contra, $hashedContra)) {
-            // Inicio de sesión exitoso
-            session_start();
-            // Se almacena el ID del camarero en la sesión.
-            $_SESSION["id_camarero"] = $id_camarero;
-            // Redirige al usuario a una página de contenido (la línea comentada no está activa).
-            header("Location: ../alumnos.php");
+            // Se verifica si la contraseña proporcionada ($contra) coincide con la contraseña almacenada en la base de datos ($hashedContra).
+            if (password_verify($contra, $hashedContra)) {
+                // Inicio de sesión exitoso
+                session_start();
+                // Se almacena el ID del camarero en la sesión.
+                $_SESSION["id_camarero"] = $id_camarero;
+                // Redirige al usuario a una página de contenido (la línea comentada no está activa).
+                header("Location: ../alumnos.php");
+            } else {
+                // Si la contraseña no coincide, se redirige de vuelta a la página de inicio de sesión con un mensaje de error.
+                header("Location: ../login.php?errorContra");
+            }
         } else {
-            // Si la contraseña no coincide, se redirige de vuelta a la página de inicio de sesión con un mensaje de error.
-            header("Location: ../login.php?errorContra");
+            // Si el nombre no existe en la base de datos, se redirige de vuelta a la página de inicio de sesión con un mensaje de error.
+            header("Location: ../login.php?errorNombre");
         }
-    } else {
-        // Si el nombre no existe en la base de datos, se redirige de vuelta a la página de inicio de sesión con un mensaje de error.
-        header("Location: ../login.php?errorNombre");
+    } catch (PDOException $e) {
+        // Manejo de errores de PDO
+        echo "Error: " . $e->getMessage();
+    } finally {
+        // Se cierra el statement de PDO.
+        $stmt = null;
+        // Se cierra la conexión a la base de datos.
+        $conn = null;
     }
-
-    // Se cierra el statement de MySQL.
-    mysqli_stmt_close($stmt);
-    // Se cierra la conexión a la base de datos.
-    mysqli_close($conn);
 }
 ?>

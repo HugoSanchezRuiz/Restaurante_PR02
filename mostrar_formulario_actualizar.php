@@ -56,7 +56,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
             <option value="camarero" <?php echo ($datosUsuario['tipo_usuario'] === 'camarero') ? 'selected' : ''; ?>>Camarero</option>
         </select>
 
-        <input type="submit" name="actualizar" id="actualizar" value="Actualizar Usuario">
+        <input type="submit" name="actualizar" id="actualizarB" value="Actualizar Usuario">
     </form>
     <a href="admin.php" class="button">Cancelar</a>
 

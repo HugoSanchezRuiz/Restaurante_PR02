@@ -12,38 +12,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nombre_cliente = $_POST["nombre_cliente"];
     $fecha_reserva = $_POST["fecha_reserva"];
 
-    include_once("./inc/conexion.php");
+    
 
-    if (!$conn) {
-        die("Error de conexión: " . mysqli_connect_error());
-    }
+    try {
+        include_once("./inc/conexion.php");
 
-    // Verificar si la mesa ya está ocupada
-    $sqlVerificarOcupada = "SELECT ocupada FROM tbl_mesa WHERE id_mesa = '$id_mesa'";
-    $resultVerificarOcupada = mysqli_query($conn, $sqlVerificarOcupada);
-
-    if ($resultVerificarOcupada) {
-        $rowVerificarOcupada = mysqli_fetch_assoc($resultVerificarOcupada);
+        // Verificar si la mesa ya está ocupada
+        $sqlVerificarOcupada = "SELECT ocupada FROM tbl_mesa WHERE id_mesa = :id_mesa";
+        $stmtVerificarOcupada = $conn->prepare($sqlVerificarOcupada);
+        $stmtVerificarOcupada->bindParam(':id_mesa', $id_mesa);
+        $stmtVerificarOcupada->execute();
+        $rowVerificarOcupada = $stmtVerificarOcupada->fetch(PDO::FETCH_ASSOC);
 
         if ($rowVerificarOcupada['ocupada'] == 1) {
             echo "Error: La mesa $id_mesa ya está ocupada.";
         } else {
             // La mesa no está ocupada, se puede hacer la reserva
-            $sql = "INSERT INTO tbl_ocupacion (id_mesa, id_camarero, fecha_inicio) VALUES ('$id_mesa', 1, '$fecha_reserva')";
+            $sql = "INSERT INTO tbl_ocupacion (id_mesa, id_camarero, fecha_inicio) VALUES (:id_mesa, 1, :fecha_reserva)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':id_mesa', $id_mesa);
+            $stmt->bindParam(':fecha_reserva', $fecha_reserva);
 
-            if (mysqli_query($conn, $sql)) {
+            if ($stmt->execute()) {
                 // Actualizar el estado de la mesa a ocupada
-                mysqli_query($conn, "UPDATE tbl_mesa SET ocupada = TRUE WHERE id_mesa = '$id_mesa'");
+                $sqlActualizarMesa = "UPDATE tbl_mesa SET ocupada = TRUE WHERE id_mesa = :id_mesa";
+                $stmtActualizarMesa = $conn->prepare($sqlActualizarMesa);
+                $stmtActualizarMesa->bindParam(':id_mesa', $id_mesa);
+                $stmtActualizarMesa->execute();
+
                 echo "Reserva realizada con éxito de la mesa ".$id_mesa." a nombre de ".$nombre_cliente;
             } else {
-                echo "Error al hacer la reserva: " . mysqli_error($conn);
+                echo "Error al hacer la reserva.";
             }
         }
-    } else {
-        echo "Error al verificar el estado de la mesa: " . mysqli_error($conn);
+    } catch (PDOException $e) {
+        echo "Error de conexión: " . $e->getMessage();
     }
 
-    mysqli_close($conn);
+    $conn = null;
 }
 ?>
 <br>
@@ -51,6 +57,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <a href="./mostrar_mesas.php">Ir a página principal</a>
 </body>
 </html>
-
-
-

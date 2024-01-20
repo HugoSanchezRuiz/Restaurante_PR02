@@ -1,62 +1,70 @@
 <?php
 // Archivo de conexión a la base de datos
 session_start();
-include_once("./inc/conexion.php");
-// Asegúrate de tener este archivo con la conexión
 
-mysqli_begin_transaction($conn);
+try {
+    include_once("./inc/conexion.php");
 
-// Consulta para obtener las mesas ocupadas de la terraza
-$queryTerraza = "SELECT t1.id_mesa, COUNT(t2.id_ocupacion) AS ocupaciones 
-                FROM tbl_mesa t1
-                LEFT JOIN tbl_ocupacion t2 ON t1.id_mesa = t2.id_mesa
-                LEFT JOIN tbl_sala t3 ON t1.id_sala = t3.id_sala
-                WHERE t3.tipo_sala = 'terraza'
-                GROUP BY t1.id_mesa
-                ORDER BY ocupaciones DESC";
+    $conn->beginTransaction();
 
-$resultTerraza = mysqli_query($conn, $queryTerraza);
-$rowsTerraza = mysqli_fetch_all($resultTerraza, MYSQLI_ASSOC);
+    // Consulta para obtener las mesas ocupadas de la terraza
+    $queryTerraza = "SELECT t1.id_mesa, COUNT(t2.id_ocupacion) AS ocupaciones 
+                    FROM tbl_mesa t1
+                    LEFT JOIN tbl_ocupacion t2 ON t1.id_mesa = t2.id_mesa
+                    LEFT JOIN tbl_sala t3 ON t1.id_sala = t3.id_sala
+                    WHERE t3.tipo_sala = 'terraza'
+                    GROUP BY t1.id_mesa
+                    ORDER BY ocupaciones DESC";
 
-// Consulta para obtener las mesas ocupadas del comedor
-$queryComedor = "SELECT t1.id_mesa, COUNT(t2.id_ocupacion) AS ocupaciones 
-                FROM tbl_mesa t1
-                LEFT JOIN tbl_ocupacion t2 ON t1.id_mesa = t2.id_mesa
-                LEFT JOIN tbl_sala t3 ON t1.id_sala = t3.id_sala
-                WHERE t3.tipo_sala = 'comedor'
-                GROUP BY t1.id_mesa
-                ORDER BY ocupaciones DESC";
+    $stmtTerraza = $conn->prepare($queryTerraza);
+    $stmtTerraza->execute();
+    $rowsTerraza = $stmtTerraza->fetchAll(PDO::FETCH_ASSOC);
 
-$resultComedor = mysqli_query($conn, $queryComedor);
-$rowsComedor = mysqli_fetch_all($resultComedor, MYSQLI_ASSOC);
+    // Consulta para obtener las mesas ocupadas del comedor
+    $queryComedor = "SELECT t1.id_mesa, COUNT(t2.id_ocupacion) AS ocupaciones 
+                    FROM tbl_mesa t1
+                    LEFT JOIN tbl_ocupacion t2 ON t1.id_mesa = t2.id_mesa
+                    LEFT JOIN tbl_sala t3 ON t1.id_sala = t3.id_sala
+                    WHERE t3.tipo_sala = 'comedor'
+                    GROUP BY t1.id_mesa
+                    ORDER BY ocupaciones DESC";
 
-// Consulta para obtener las mesas ocupadas de la sala privada
-$queryPrivada = "SELECT t1.id_mesa, COUNT(t2.id_ocupacion) AS ocupaciones 
-                FROM tbl_mesa t1
-                LEFT JOIN tbl_ocupacion t2 ON t1.id_mesa = t2.id_mesa
-                LEFT JOIN tbl_sala t3 ON t1.id_sala = t3.id_sala
-                WHERE t3.tipo_sala = 'privada'
-                GROUP BY t1.id_mesa
-                ORDER BY ocupaciones DESC";
-$resultPrivada = mysqli_query($conn, $queryPrivada);
-$rowsPrivada = mysqli_fetch_all($resultPrivada, MYSQLI_ASSOC);
+    $stmtComedor = $conn->prepare($queryComedor);
+    $stmtComedor->execute();
+    $rowsComedor = $stmtComedor->fetchAll(PDO::FETCH_ASSOC);
 
-$queryHoras = "SELECT HOUR(fecha_inicio) AS hora,
-                COUNT(*) AS ocupaciones
-                FROM
-                tbl_ocupacion
-                GROUP BY
-                hora
-                ORDER BY
-                ocupaciones DESC;";
-$resultHoras = mysqli_query($conn, $queryHoras);
-$rowsHoras = mysqli_fetch_all($resultHoras, MYSQLI_ASSOC);
+    // Consulta para obtener las mesas ocupadas de la sala privada
+    $queryPrivada = "SELECT t1.id_mesa, COUNT(t2.id_ocupacion) AS ocupaciones 
+                    FROM tbl_mesa t1
+                    LEFT JOIN tbl_ocupacion t2 ON t1.id_mesa = t2.id_mesa
+                    LEFT JOIN tbl_sala t3 ON t1.id_sala = t3.id_sala
+                    WHERE t3.tipo_sala = 'privada'
+                    GROUP BY t1.id_mesa
+                    ORDER BY ocupaciones DESC";
+    
+    $stmtPrivada = $conn->prepare($queryPrivada);
+    $stmtPrivada->execute();
+    $rowsPrivada = $stmtPrivada->fetchAll(PDO::FETCH_ASSOC);
 
+    // Consulta para obtener las horas más ocupadas
+    $queryHoras = "SELECT HOUR(fecha_inicio) AS hora,
+                    COUNT(*) AS ocupaciones
+                    FROM tbl_ocupacion
+                    GROUP BY hora
+                    ORDER BY ocupaciones DESC";
+    
+    $stmtHoras = $conn->prepare($queryHoras);
+    $stmtHoras->execute();
+    $rowsHoras = $stmtHoras->fetchAll(PDO::FETCH_ASSOC);
 
-// Cerrar la conexión
-// mysqli_close($conn);
+    $conn->commit();
+} catch (PDOException $e) {
+    $conn->rollBack();
+    echo "Error: " . $e->getMessage();
+}
+
+$conn = null;
 ?>
-
 <style>
     * {
         margin: 0;

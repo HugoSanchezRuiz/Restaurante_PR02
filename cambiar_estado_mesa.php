@@ -30,71 +30,65 @@ for ($i = 1; $i <= $numero_maximo_camareros; $i++) {
 // Si no se encuentra el camarero, $id_camarero seguirá siendo 0
 
 if (isset($_POST['mesa_id'])) {
-    $mesa_id = mysqli_real_escape_string($conn, $_POST['mesa_id']);
-
-    // Antes de la transacción
-    echo "Antes de la transacción";
+    $mesa_id = $_POST['mesa_id'];
 
     try {
+        // Inicia la conexión PDO
+        include_once "./inc/conexion.php";
+
         // Inicia la transacción
-        mysqli_autocommit($conn, false);
-        mysqli_begin_transaction($conn);
+        $conn->beginTransaction();
 
         // Consulta SQL para obtener el estado actual de ocupación de la mesa
         $sqlEstadoActual = "SELECT ocupada FROM tbl_mesa WHERE id_mesa = ?";
-        $stmtEstadoActual = mysqli_prepare($conn, $sqlEstadoActual);
-        mysqli_stmt_bind_param($stmtEstadoActual, "i", $mesa_id);
-        mysqli_stmt_execute($stmtEstadoActual);
-        $resultEstadoActual = mysqli_stmt_get_result($stmtEstadoActual);
+        $stmtEstadoActual = $conn->prepare($sqlEstadoActual);
+        $stmtEstadoActual->execute([$mesa_id]);
+        $resultEstadoActual = $stmtEstadoActual->fetch(PDO::FETCH_ASSOC);
 
         if ($resultEstadoActual) {
-            $row = mysqli_fetch_assoc($resultEstadoActual);
-            $ocupada = $row['ocupada'];
+            $ocupada = $resultEstadoActual['ocupada'];
 
             // Invierte el estado de ocupación
             $nuevoEstado = !$ocupada;
 
             // Actualiza el estado de ocupación en la base de datos
             $sqlActualizarEstado = "UPDATE tbl_mesa SET ocupada = ? WHERE id_mesa = ?";
-            $stmtActualizarEstado = mysqli_prepare($conn, $sqlActualizarEstado);
-            mysqli_stmt_bind_param($stmtActualizarEstado, "ii", $nuevoEstado, $mesa_id);
-            $resultActualizarEstado = mysqli_stmt_execute($stmtActualizarEstado);
+            $stmtActualizarEstado = $conn->prepare($sqlActualizarEstado);
+            $stmtActualizarEstado->execute([$nuevoEstado, $mesa_id]);
 
-            if ($resultActualizarEstado) {
+            if ($stmtActualizarEstado) {
                 // Si la mesa está ocupada, inserta una nueva fila en tbl_ocupacion con la fecha de inicio
                 if ($nuevoEstado == 1) {
                     //$id_camarero = 1; // Reemplaza con el ID del camarero actual
                     $sqlInsertarOcupacion = "INSERT INTO tbl_ocupacion (id_mesa, id_camarero, fecha_inicio, fecha_fin) VALUES (?, ?, NOW(), NULL)";
-                    $stmtInsertarOcupacion = mysqli_prepare($conn, $sqlInsertarOcupacion);
-                    mysqli_stmt_bind_param($stmtInsertarOcupacion, "ii", $mesa_id, $id_camarero);
-                    $resultInsertarOcupacion = mysqli_stmt_execute($stmtInsertarOcupacion);
+                    $stmtInsertarOcupacion = $conn->prepare($sqlInsertarOcupacion);
+                    $stmtInsertarOcupacion->execute([$mesa_id, $id_camarero]);
 
-                    if (!$resultInsertarOcupacion) {
+                    if (!$stmtInsertarOcupacion) {
                         // Si hay un error en la inserción, realiza un rollback
-                        mysqli_rollback($conn);
-                        echo "Error al insertar la ocupación de la mesa: " . mysqli_error($conn);
+                        $conn->rollBack();
+                        echo "Error al insertar la ocupación de la mesa: " . $conn->errorInfo();
                         exit();
                     }
                 } else {
                     // Si la mesa está desocupada, actualiza la fecha_fin en tbl_ocupacion
                     $sqlActualizarOcupacion = "UPDATE tbl_ocupacion SET fecha_fin = NOW() WHERE id_mesa = ? AND fecha_fin IS NULL";
-                    $stmtActualizarOcupacion = mysqli_prepare($conn, $sqlActualizarOcupacion);
-                    mysqli_stmt_bind_param($stmtActualizarOcupacion, "i", $mesa_id);
-                    $resultActualizarOcupacion = mysqli_stmt_execute($stmtActualizarOcupacion);
+                    $stmtActualizarOcupacion = $conn->prepare($sqlActualizarOcupacion);
+                    $stmtActualizarOcupacion->execute([$mesa_id]);
 
-                    if (!$resultActualizarOcupacion) {
+                    if (!$stmtActualizarOcupacion) {
                         // Si hay un error en la actualización, realiza un rollback
-                        mysqli_rollback($conn);
-                        echo "Error al actualizar la ocupación de la mesa: " . mysqli_error($conn);
+                        $conn->rollBack();
+                        echo "Error al actualizar la ocupación de la mesa: " . $conn->errorInfo();
                         exit();
                     }
                 }
 
                 // Confirma la transacción
-                mysqli_commit($conn);
+                $conn->commit();
 
                 // Cierra la conexión
-                mysqli_close($conn);
+                $conn = null;
 
                 // Agrega el script de SweetAlert para la notificación y redirección
                 echo "
@@ -111,22 +105,20 @@ if (isset($_POST['mesa_id'])) {
 ";
             } else {
                 // Si hay un error en la actualización, realiza un rollback (deshace todos los cambios hechos)
-                mysqli_rollback($conn);
-                echo "Error al actualizar el estado de la mesa: " . mysqli_error($conn);
+                $conn->rollBack();
+                echo "Error al actualizar el estado de la mesa: " . $conn->errorInfo();
             }
         } else {
-            echo "Error al obtener el estado actual de la mesa: " . mysqli_error($conn);
+            echo "Error al obtener el estado actual de la mesa: " . $conn->errorInfo();
         }
 
         // Cierra la conexión
-        mysqli_close($conn);
+        $conn = null;
 
         // Redirige de nuevo a la página anterior
         // header("Location: ./mostrar_mesas.php");
         // exit();
-        // Después de la transacción
-        echo "Después de la transacción";
-    } catch (Exception $e) {
+    } catch (PDOException $e) {
         // Manejo de excepciones
         echo "Excepción: " . $e->getMessage();
     }

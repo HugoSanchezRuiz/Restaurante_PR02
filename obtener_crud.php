@@ -10,12 +10,14 @@ $resultMostrar = $conn->query($sqlMostrar);
 if ($resultMostrar) {
     if ($resultMostrar->rowCount() > 0) {
         while ($row = $resultMostrar->fetch(PDO::FETCH_ASSOC)) {
-            echo "<p>ID: " . $row['id_usuario'] . " - Nombre: " . $row['nombre_usuario'] . " - Contraseña: " . $row['contrasena'] . " - Tipo: " . $row['tipo_usuario'] . "
-                <div class='btn-container'>
-                    <button onclick=\"mostrarFormularioActualizacion({$row['id_usuario']})\">Actualizar</button>
-                    <button onclick=\"confirmarEliminacion('{$row['nombre_usuario']}')\">Eliminar</button>
-                </div>
-            </p>";
+            echo "<div class='usuario-container'>";
+            echo "<p>ID: " . $row['id_usuario'] . " - Nombre: " . $row['nombre_usuario'] . " - Contraseña: " . $row['contrasena'] . " - Tipo: " . $row['tipo_usuario'] . "</p>";
+            echo "<div class='btn-container'>";
+            echo "<button onclick=\"mostrarFormularioActualizacion({$row['id_usuario']})\">Actualizar</button>";
+            echo "<button onclick=\"confirmarEliminacionUsuario('{$row['id_usuario']}')\">Eliminar</button>";
+            echo "<br>";
+            echo "</div>";
+            echo "</div>";
         }
     } else {
         echo "<p>No hay usuarios registrados.</p>";
@@ -23,4 +25,3 @@ if ($resultMostrar) {
 } else {
     throw new Exception("Error en la consulta de usuarios: " . $pdo->errorInfo()[2]);
 }
-?>
