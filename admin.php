@@ -38,7 +38,7 @@ include_once("./inc/conexion.php");
 
         <div id="formInsertar">
             <h3>Insertar Usuario</h3>
-            <form method="post" id="formI" onsubmit="return validar()">
+            <form method="post" id="formI">
                 <label for="nombre_usuario">Nombre de Usuario:</label>
                 <input type="text" name="usuario" id="usuarioInputI" required>
                 <span id="error_usuario"></span>
@@ -53,6 +53,7 @@ include_once("./inc/conexion.php");
                     <option value="mantenimiento">Mantenimiento</option>
                     <option value="camarero">Camarero</option>
                 </select>
+                <span id="error_select"></span>
                 <br>
                 <br>
                 <input type="submit" name="insertar" id="insertarB" value="Insertar Usuario">
@@ -60,11 +61,13 @@ include_once("./inc/conexion.php");
         </div>
         <div id="formInsertarMesa">
             <h3>Insertar Mesa</h3>
-            <form method="post" id="formM" onsubmit="return validarFormulario('formM')">
+            <form method="post" id="formM">
                 <label for="id_sala">Número Sala:</label>
                 <input type="text" name="id_sala" id="idsalaInputI" required>
+                <span id="error_idsala"></span>
                 <label for="capacidad">Capacidad:</label>
                 <input type="text" name="capacidad" id="capacidadInputI" required>
+                <span id="error_capacidad"></span>
                 <br>
                 <br>
                 <input type="submit" name="insertarM" id="insertarBMesa" value="Insertar Mesa">
@@ -73,9 +76,10 @@ include_once("./inc/conexion.php");
 
         <div id="formInsertarSilla">
             <h3>Insertar Silla</h3>
-            <form method="post" id="formS" onsubmit="return validarFormulario('formS')">
+            <form method="post" id="formS">
                 <label for="id_mesa">Número de Mesa:</label>
                 <input type="text" name="id_mesa" id="idmesaInputI" required>
+                <span id="error_idmesa"></span>
                 <br>
                 <br>
                 <input type="submit" name="insertarS" id="insertarBSilla" value="Insertar Silla">
@@ -84,9 +88,10 @@ include_once("./inc/conexion.php");
 
         <div id="formInsertarSala">
             <h3>Insertar Sala</h3>
-            <form method="post" id="formSL" onsubmit="return validarFormulario('formSL')">
+            <form method="post" id="formSL">
                 <label for="nombre">Nombre:</label>
                 <input type="text" name="nombre" id="nombresalaInputI" required>
+                <span id="error_nombresala"></span>
                 <label for="tipo_sala">Tipo de Sala:</label>
                 <select name="tipo_sala" id="tiposalaInputI" required>
                     <option value="" disabled selected>Selecciona un tipo</option>
@@ -94,15 +99,16 @@ include_once("./inc/conexion.php");
                     <option value="terraza">terraza</option>
                     <option value="privada">privada</option>
                 </select>
+                <span id="error_tiposala"></span>
                 <label for="capacidad">Capacidad:</label>
                 <input type="text" name="capacidad" id="capacidadInputI2" required>
+                <span id="error_capacidadsala"></span>
                 <br>
                 <br>
                 <input type="submit" name="insertarSala" id="insertarBSala" value="Insertar Sala">
             </form>
         </div>
         <div id="crudUsuarios"></div>
-        <!-- <div id="updateFormContainer"></div> -->
         <div id="insertFormContainer"></div>
         <div id="crudRecursos"></div>
 
@@ -198,7 +204,7 @@ include_once("./inc/conexion.php");
 
                 // Validación del tipo de usuario
                 if (tipoUsuario === "") {
-                    alert('Por favor, selecciona un tipo de usuario.');
+                    document.getElementById('error_select').innerText = 'Por favor, eligue una opción en el select.';
                     return false;
                 }
 
@@ -212,242 +218,222 @@ include_once("./inc/conexion.php");
 
             ///// INSERTAR MESA
             document.getElementById("insertarBMesa").addEventListener("click", function(event) {
-                event.preventDefault(); // Evitar la recarga de la página al enviar el formulario
+                var idSalaInput = document.getElementById('idsalaInputI');
+                var capacidadInput = document.getElementById('capacidadInputI');
+                var errorIdSala = document.getElementById('error_idsala');
+                var errorCapacidad = document.getElementById('error_capacidad');
 
-                var form = document.getElementById("formM");
-                var idsalaInput = document.getElementById("idsalaInputI");
-                var capacidadInput = document.getElementById("capacidadInputI");
-                var formData = new FormData(form);
+                // Restablecer mensajes de error
+                errorIdSala.textContent = '';
+                errorCapacidad.textContent = '';
 
-                // Realizar la solicitud AJAX
-                var xhr = new XMLHttpRequest();
-                xhr.onreadystatechange = function() {
-                    if (xhr.readyState == 4) {
-                        if (xhr.status == 200) {
-                            // Éxito al insertar el usuario
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Mesa Insertada',
-                                showConfirmButton: true,
-                                timer: 5000
-                            });
-                            idsalaInput.value = "";
-                            capacidadInput.value = "";
-                            // Puedes realizar acciones adicionales si es necesario
-                        } else {
-                            // Error al insertar el usuario
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error al Insertar Mesa',
-                                text: xhr.responseText
-                            });
-                        }
-                    }
-                };
+                // Verificar si los campos están vacíos o no contienen solo números
+                if (idSalaInput.value.trim() === '' || !/^\d+$/.test(idSalaInput.value)) {
+                    errorIdSala.textContent = 'Por favor, ingresa un número válido para Número Sala.';
+                    return false;
+                }
 
-                xhr.open("POST", "insertar_mesas.php", true);
-                xhr.send(formData);
+                if (capacidadInput.value.trim() === '' || !/^\d+$/.test(capacidadInput.value)) {
+                    errorCapacidad.textContent = 'Por favor, ingresa un número válido para Capacidad.';
+                    return false;
+                }
+
+                insertarMesa();
+                return true;
+
             });
+
+
 
             ///// INSERTAR SILLA
             document.getElementById("insertarBSilla").addEventListener("click", function(event) {
+
+
+
+
                 event.preventDefault(); // Evitar la recarga de la página al enviar el formulario
 
-                var form = document.getElementById("formS");
-                var idmesaInput = document.getElementById("idmesaInputI");
-                var formData = new FormData(form);
+                var idMesaInput = document.getElementById('idmesaInputI');
+                var errorIdMesa = document.getElementById('error_idmesa');
 
-                // Realizar la solicitud AJAX
-                var xhr = new XMLHttpRequest();
-                xhr.onreadystatechange = function() {
-                    if (xhr.readyState == 4) {
-                        if (xhr.status == 200) {
-                            // Éxito al insertar el usuario
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Silla Insertada',
-                                showConfirmButton: true,
-                                timer: 5000
-                            });
-                            idmesaInput.value = "";
-                            // Puedes realizar acciones adicionales si es necesario
-                        } else {
-                            // Error al insertar el usuario
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error al Insertar Silla',
-                                text: xhr.responseText
-                            });
-                        }
-                    }
-                };
+                // Restablecer mensaje de error
+                errorIdMesa.textContent = '';
 
-                xhr.open("POST", "insertar_silla.php", true);
-                xhr.send(formData);
+                // Verificar si el campo está vacío o no contiene solo números
+                if (idMesaInput.value.trim() === '' || !/^\d+$/.test(idMesaInput.value)) {
+                    errorIdMesa.textContent = 'Por favor, ingresa un número válido para Número de Mesa.';
+                    event.preventDefault(); // Evitar el envío del formulario
+                    return false;
+                }
+
+                insertarSilla();
+                return true;
             });
 
             ///// INSERTAR SALA
             document.getElementById("insertarBSala").addEventListener("click", function(event) {
                 event.preventDefault(); // Evitar la recarga de la página al enviar el formulario
 
-                var form = document.getElementById("formSL");
-                var nombresalaInput = document.getElementById("nombresalaInputI");
-                var tiposalaInput = document.getElementById("tiposalaInputI");
-                var capacidadInput = document.getElementById("capacidadInputI2");
-                var formData = new FormData(form);
+                var nombreSalaInput = document.getElementById('nombresalaInputI');
+                var tipoSalaInput = document.getElementById('tiposalaInputI');
+                var capacidadSalaInput = document.getElementById('capacidadInputI2');
+                var errorNombreSala = document.getElementById('error_nombresala');
+                var errorTipoSala = document.getElementById('error_tiposala');
+                var errorCapacidadSala = document.getElementById('error_capacidadsala');
 
-                // Realizar la solicitud AJAX
-                var xhr = new XMLHttpRequest();
-                xhr.onreadystatechange = function() {
-                    if (xhr.readyState == 4) {
-                        if (xhr.status == 200) {
-                            // Éxito al insertar el usuario
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Sala Insertada',
-                                showConfirmButton: true,
-                                timer: 5000
-                            });
-                            capacidadInput.value = "";
-                            tiposalaInput.value = "";
-                            nombresalaInput.value = "";
-                            // Puedes realizar acciones adicionales si es necesario
-                        } else {
-                            // Error al insertar el usuario
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error al Insertar Sala',
-                                text: xhr.responseText
-                            });
-                        }
-                    }
-                };
+                // Restablecer mensajes de error
+                errorNombreSala.textContent = '';
+                errorTipoSala.textContent = '';
+                errorCapacidadSala.textContent = '';
 
-                xhr.open("POST", "insertar_sala.php", true);
-                xhr.send(formData);
-            });
-
-
-
-            // Se acaba el window.onload
-
-
-            document.getElementById("insertarM").addEventListener("click", function(event) {
-                event.preventDefault(); // Evitar la recarga de la página al enviar el formulario
-
-                ocultarElemento("crudUsuarios");
-                ocultarElemento("crudRecursos");
-                ocultarElemento("formInsertar");
-                ocultarElemento("formInsertarSilla");
-                ocultarElemento("formInsertarSala");
-                ocultarElemento("filtro");
-
-                // Mostrar el form de mesa
-                mostrarElemento("formInsertarMesa");
-            });
-
-            document.getElementById("recurso").addEventListener("click", function() {
-                mostrarCRUDRecurso();
-                // Ocultar el CRUD de usuarios y el formulario de insertar
-                ocultarElemento("crudUsuarios");
-                ocultarElemento("formInsertar");
-                ocultarElemento("formInsertarMesa");
-                ocultarElemento("formInsertarSilla");
-                ocultarElemento("formInsertarSala");
-                ocultarElemento("filtro");
-
-                // Mostrar el CRUD de recursos
-                mostrarElemento("crudRecursos");
-            });
-
-            document.getElementById("insertar").addEventListener("click", function() {
-                // Ocultar el CRUD de usuarios y el CRUD de recursos
-                ocultarElemento("crudUsuarios");
-                ocultarElemento("crudRecursos");
-                ocultarElemento("formInsertarMesa");
-                ocultarElemento("formInsertarSilla");
-                ocultarElemento("formInsertarSala");
-                ocultarElemento("filtro");
-
-                // Mostrar el formulario de insertar
-                mostrarElemento("formInsertar");
-            });
-
-            document.getElementById("insertarS").addEventListener("click", function() {
-                // Mostrar el CRUD de usuarios
-                mostrarCRUDUsuarios();
-                // Mostrar el CRUD de recursos
-                mostrarElemento("formInsertarSilla");
-                // Ocultar el CRUD de recursos y el formulario de insertar
-                ocultarElemento("crudUsuarios");
-                ocultarElemento("crudRecursos");
-                ocultarElemento("formInsertar");
-                ocultarElemento("formInsertarMesa");
-                ocultarElemento("formInsertarSala");
-                ocultarElemento("filtro");
-            });
-
-            document.getElementById("insertarSL").addEventListener("click", function() {
-                // Mostrar el CRUD de usuarios
-                mostrarCRUDUsuarios();
-                // Mostrar el CRUD de recursos
-                mostrarElemento("formInsertarSala");
-                // Ocultar el CRUD de recursos y el formulario de insertar
-                ocultarElemento("crudUsuarios");
-                ocultarElemento("crudRecursos");
-                ocultarElemento("formInsertar");
-                ocultarElemento("formInsertarMesa");
-                ocultarElemento("formInsertarSilla");
-                ocultarElemento("filtro");
-            });
-            /////// MOSTRAR U OCULTAR CONTENIDO
-            document.getElementById("verUsuarios").addEventListener("click", function() {
-                // function MostrarOcultar() {
-                // Mostrar el CRUD de usuarios
-                mostrarCRUDUsuarios();
-                // Mostrar el CRUD de recursos
-                mostrarElemento("crudUsuarios");
-                mostrarElemento("filtro");
-                // Ocultar el CRUD de recursos y el formulario de insertar
-                ocultarElemento("crudRecursos");
-                ocultarElemento("formInsertar");
-                ocultarElemento("formInsertarMesa");
-                ocultarElemento("formInsertarSilla");
-                ocultarElemento("formInsertarSala");
-            });
-
-            document.getElementById("act").addEventListener("click", function() {
-                // function MostrarOcultar() {
-                // Mostrar el CRUD de usuarios
-                mostrarCRUDUsuarios();
-                // Mostrar el CRUD de recursos
-                mostrarElemento("crudUsuarios");
-                mostrarElemento("updateForm");
-                // Ocultar el CRUD de recursos y el formulario de insertar
-                ocultarElemento("crudRecursos");
-                ocultarElemento("formInsertar");
-                ocultarElemento("formInsertarMesa");
-                ocultarElemento("formInsertarSilla");
-                ocultarElemento("formInsertarSala");
-                ocultarElemento("filtro");
-            });
-
-            // Función para ocultar un elemento por su ID
-            function ocultarElemento(id) {
-                var elemento = document.getElementById(id);
-                if (elemento) {
-                    elemento.style.display = "none";
+                // Verificar si los campos están vacíos o no contienen solo números
+                if (nombreSalaInput.value.trim() === '') {
+                    errorNombreSala.textContent = 'Por favor, ingresa un nombre para la sala.';
+                    event.preventDefault(); // Evitar el envío del formulario
+                    return;
                 }
-            }
 
-            // Función para mostrar un elemento por su ID
-            function mostrarElemento(id) {
-                var elemento = document.getElementById(id);
-                if (elemento) {
-                    elemento.style.display = "block";
+                if (tipoSalaInput.value === '') {
+                    errorTipoSala.textContent = 'Por favor, selecciona un tipo de sala.';
+                    event.preventDefault(); // Evitar el envío del formulario
+                    return;
                 }
-            }
+
+                if (capacidadSalaInput.value.trim() === '' || !/^\d+$/.test(capacidadSalaInput.value)) {
+                    errorCapacidadSala.textContent = 'Por favor, ingresa una capacidad válida para la sala.';
+                    event.preventDefault(); // Evitar el envío del formulario
+                    return;
+                }
+
+                // Si todos los campos son válidos, el formulario se enviará normalmente
+
+                insertarSala();
+                return true;
+            });
+
+
         };
+
+
+
+        // Se acaba el window.onload
+
+
+        document.getElementById("insertarM").addEventListener("click", function(event) {
+            event.preventDefault(); // Evitar la recarga de la página al enviar el formulario
+
+            ocultarElemento("crudUsuarios");
+            ocultarElemento("crudRecursos");
+            ocultarElemento("formInsertar");
+            ocultarElemento("formInsertarSilla");
+            ocultarElemento("formInsertarSala");
+            ocultarElemento("filtro");
+
+            // Mostrar el form de mesa
+            mostrarElemento("formInsertarMesa");
+        });
+
+        document.getElementById("recurso").addEventListener("click", function() {
+            mostrarCRUDRecurso();
+            // Ocultar el CRUD de usuarios y el formulario de insertar
+            ocultarElemento("crudUsuarios");
+            ocultarElemento("formInsertar");
+            ocultarElemento("formInsertarMesa");
+            ocultarElemento("formInsertarSilla");
+            ocultarElemento("formInsertarSala");
+            ocultarElemento("filtro");
+
+            // Mostrar el CRUD de recursos
+            mostrarElemento("crudRecursos");
+        });
+
+        document.getElementById("insertar").addEventListener("click", function() {
+            // Ocultar el CRUD de usuarios y el CRUD de recursos
+            ocultarElemento("crudUsuarios");
+            ocultarElemento("crudRecursos");
+            ocultarElemento("formInsertarMesa");
+            ocultarElemento("formInsertarSilla");
+            ocultarElemento("formInsertarSala");
+            ocultarElemento("filtro");
+
+            // Mostrar el formulario de insertar
+            mostrarElemento("formInsertar");
+        });
+
+        document.getElementById("insertarS").addEventListener("click", function() {
+            // Mostrar el CRUD de usuarios
+            mostrarCRUDUsuarios();
+            // Mostrar el CRUD de recursos
+            mostrarElemento("formInsertarSilla");
+            // Ocultar el CRUD de recursos y el formulario de insertar
+            ocultarElemento("crudUsuarios");
+            ocultarElemento("crudRecursos");
+            ocultarElemento("formInsertar");
+            ocultarElemento("formInsertarMesa");
+            ocultarElemento("formInsertarSala");
+            ocultarElemento("filtro");
+        });
+
+        document.getElementById("insertarSL").addEventListener("click", function() {
+            // Mostrar el CRUD de usuarios
+            mostrarCRUDUsuarios();
+            // Mostrar el CRUD de recursos
+            mostrarElemento("formInsertarSala");
+            // Ocultar el CRUD de recursos y el formulario de insertar
+            ocultarElemento("crudUsuarios");
+            ocultarElemento("crudRecursos");
+            ocultarElemento("formInsertar");
+            ocultarElemento("formInsertarMesa");
+            ocultarElemento("formInsertarSilla");
+            ocultarElemento("filtro");
+        });
+        /////// MOSTRAR U OCULTAR CONTENIDO
+        document.getElementById("verUsuarios").addEventListener("click", function() {
+            // function MostrarOcultar() {
+            // Mostrar el CRUD de usuarios
+            mostrarCRUDUsuarios();
+            // Mostrar el CRUD de recursos
+            mostrarElemento("crudUsuarios");
+            mostrarElemento("filtro");
+            // Ocultar el CRUD de recursos y el formulario de insertar
+            ocultarElemento("crudRecursos");
+            ocultarElemento("formInsertar");
+            ocultarElemento("formInsertarMesa");
+            ocultarElemento("formInsertarSilla");
+            ocultarElemento("formInsertarSala");
+        });
+
+        document.getElementById("act").addEventListener("click", function() {
+            // function MostrarOcultar() {
+            // Mostrar el CRUD de usuarios
+            mostrarCRUDUsuarios();
+            // Mostrar el CRUD de recursos
+            mostrarElemento("crudUsuarios");
+            mostrarElemento("updateForm");
+            // Ocultar el CRUD de recursos y el formulario de insertar
+            ocultarElemento("crudRecursos");
+            ocultarElemento("formInsertar");
+            ocultarElemento("formInsertarMesa");
+            ocultarElemento("formInsertarSilla");
+            ocultarElemento("formInsertarSala");
+            ocultarElemento("filtro");
+        });
+
+        // Función para ocultar un elemento por su ID
+        function ocultarElemento(id) {
+            var elemento = document.getElementById(id);
+            if (elemento) {
+                elemento.style.display = "none";
+            }
+        }
+
+        // Función para mostrar un elemento por su ID
+        function mostrarElemento(id) {
+            var elemento = document.getElementById(id);
+            if (elemento) {
+                elemento.style.display = "block";
+            }
+        }
 
 
         ////////////// ELIMINAR
@@ -639,36 +625,6 @@ include_once("./inc/conexion.php");
             xhr.send();
         }
 
-        function validarFormulario(formId) {
-            // Obtener el formulario por su ID
-            var formulario = document.getElementById(formId);
-
-            // Obtener todos los elementos de entrada del formulario
-            var inputs = formulario.getElementsByTagName('input');
-            var selects = formulario.getElementsByTagName('select');
-
-            // Validar campos de texto y contraseña
-            for (var i = 0; i < inputs.length; i++) {
-                if (inputs[i].type === 'text' || inputs[i].type === 'password') {
-                    if (inputs[i].value.trim() === '') {
-                        alert('Por favor, complete todos los campos obligatorios.');
-                        return false; // Evita que el formulario se envíe
-                    }
-                }
-            }
-
-            // Validar campos de selección (select)
-            for (var i = 0; i < selects.length; i++) {
-                if (selects[i].value === '') {
-                    alert('Por favor, seleccione un valor para todos los campos obligatorios.');
-                    return false; // Evita que el formulario se envíe
-                }
-            }
-
-            // Si llegamos aquí, todos los campos requeridos están llenos
-            return true;
-        }
-
         ////// FILTRO
 
         // Listar usuarios
@@ -807,6 +763,114 @@ include_once("./inc/conexion.php");
             };
 
             xhr.open("POST", "insertar_usuario.php", true); // Reemplaza "insertar_usuario.php" con la ruta correcta
+            xhr.send(formData);
+        }
+
+        function insertarMesa() {
+            var form = document.getElementById("formM");
+            var idsalaInput = document.getElementById("idsalaInputI");
+            var capacidadInput = document.getElementById("capacidadInputI");
+            var formData = new FormData(form);
+
+            // Realizar la solicitud AJAX
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        // Éxito al insertar el usuario
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Mesa Insertada',
+                            showConfirmButton: true,
+                            timer: 5000
+                        });
+                        idsalaInput.value = "";
+                        capacidadInput.value = "";
+                        // Puedes realizar acciones adicionales si es necesario
+                    } else {
+                        // Error al insertar el usuario
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error al Insertar Mesa',
+                            text: xhr.responseText
+                        });
+                    }
+                }
+            };
+
+            xhr.open("POST", "insertar_mesas.php", true);
+            xhr.send(formData);
+        }
+
+        function insertarSilla() {
+            var form = document.getElementById("formS");
+            var idmesaInput = document.getElementById("idmesaInputI");
+            var formData = new FormData(form);
+
+            // Realizar la solicitud AJAX
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        // Éxito al insertar el usuario
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Silla Insertada',
+                            showConfirmButton: true,
+                            timer: 5000
+                        });
+                        idmesaInput.value = "";
+                        // Puedes realizar acciones adicionales si es necesario
+                    } else {
+                        // Error al insertar el usuario
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error al Insertar Silla',
+                            text: xhr.responseText
+                        });
+                    }
+                }
+            };
+
+            xhr.open("POST", "insertar_silla.php", true);
+            xhr.send(formData);
+        }
+
+        function insertarSala() {
+            var form = document.getElementById("formSL");
+            var nombresalaInput = document.getElementById("nombresalaInputI");
+            var tiposalaInput = document.getElementById("tiposalaInputI");
+            var capacidadInput = document.getElementById("capacidadInputI2");
+            var formData = new FormData(form);
+
+            // Realizar la solicitud AJAX
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        // Éxito al insertar el usuario
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Sala Insertada',
+                            showConfirmButton: true,
+                            timer: 5000
+                        });
+                        capacidadInput.value = "";
+                        tiposalaInput.value = "";
+                        nombresalaInput.value = "";
+                        // Puedes realizar acciones adicionales si es necesario
+                    } else {
+                        // Error al insertar el usuario
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error al Insertar Sala',
+                            text: xhr.responseText
+                        });
+                    }
+                }
+            };
+
+            xhr.open("POST", "insertar_sala.php", true);
             xhr.send(formData);
         }
     </script>
