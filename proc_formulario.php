@@ -10,7 +10,7 @@ if (isset($_POST['usuario'])) {
     $usuario = $_POST['usuario'];
 
     // Incluir el archivo de funciones
-    // require_once('./funciones.php');
+    require_once('./funciones.php');
     // Incluir el archivo de conexión a la base de datos
     include_once("./inc/conexion.php");
 

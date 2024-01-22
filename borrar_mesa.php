@@ -7,6 +7,7 @@ if (isset($_GET['id_mesa'])) {
     $id_mesa = $_GET['id_mesa'];
 
     try {
+        $id_mesa = $_GET['id_mesa'];
         $conn->beginTransaction();
 
         // 1. Eliminar filas en tbl_ocupacion

@@ -1,33 +1,40 @@
 <?php
 include_once("./inc/conexion.php");
 
-// Operación de Actualizar
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["id"])) {
-    $idUsuario = $_POST["id"];
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["id_usuario"])) {
+    $idUsuario = $_POST["id_usuario"];
     $nombreUsuario = $_POST["nombre_usuario"];
     $tipoUsuario = $_POST["tipo_usuario"];
     $contrasena = $_POST["contrasena"];
 
-    // Hashear la contraseña usando password_hash
-    $contrasenaHash = password_hash($contrasena, PASSWORD_DEFAULT);
+    // Validar y sanear datos según sea necesario
 
-    $sqlActualizar = "UPDATE tbl_usuario SET nombre_usuario = ?, contrasena = ?, tipo_usuario = ? WHERE id_usuario = ?";
+    // Hashear la contraseña solo si se proporciona
+    $contrasenaHash = (!empty($contrasena)) ? password_hash($contrasena, PASSWORD_DEFAULT) : null;
+
+    $sqlActualizar = "UPDATE tbl_usuario SET nombre_usuario = ?, tipo_usuario = ?";
+    $parametros = [$nombreUsuario, $tipoUsuario];
+
+    // Agregar contraseña al SQL si se proporciona
+    if ($contrasenaHash !== null) {
+        $sqlActualizar .= ", contrasena = ?";
+        $parametros[] = $contrasenaHash;
+    }
+
+    $sqlActualizar .= " WHERE id_usuario = ?";
+    $parametros[] = $idUsuario;
+
     $stmtActualizar = $conn->prepare($sqlActualizar);
-    $stmtActualizar->bindParam(1, $nombreUsuario);
-    $stmtActualizar->bindParam(2, $contrasenaHash);
-    $stmtActualizar->bindParam(3, $tipoUsuario);
-    $stmtActualizar->bindParam(4, $idUsuario);
-    $stmtActualizar->execute();
+    $stmtActualizar->execute($parametros);
 
     // Obtener los datos actualizados
     $sqlObtenerDatos = "SELECT * FROM tbl_usuario WHERE id_usuario = ?";
     $stmtObtenerDatos = $conn->prepare($sqlObtenerDatos);
-    $stmtObtenerDatos->bindParam(1, $idUsuario);
-    $stmtObtenerDatos->execute();
+    $stmtObtenerDatos->execute([$idUsuario]);
     $datosActualizados = $stmtObtenerDatos->fetch(PDO::FETCH_ASSOC);
 
     // Devolver los datos actualizados como respuesta JSON
-    header('Content-Type: application/json');
+    header('Content-Type: application/json'); // Corregir la línea de Content-Type
     echo json_encode($datosActualizados);
     exit;
 }

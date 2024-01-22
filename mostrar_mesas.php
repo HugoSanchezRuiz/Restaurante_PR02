@@ -131,9 +131,8 @@ $table = isset($_GET['table']) ? $_GET['table'] : null;
     </div>
     <hr class="hr-header">
     <div>
-        <a href="./mesasb.php">Borrar mesa</a>
-        <a href="./mesas.php">Insertar mesa</a>
-        <a href="./reserva.php">Reservar</a>
+    <a href="./reserva.php?usuario=<?php echo $usuario; ?>">Reservar</a>
+    <a href="./ver_reservas.php">Ver reservas</a>
     </div>
 </header>
 
@@ -329,7 +328,7 @@ function filtrarMesasPorFecha($pdo, $fechaFiltro)
 </head>
 
 <body>
-    <div class="row flex" id="">
+    <div class="row flex">
         <div id="restaurante">
 
             <?php

@@ -1,32 +1,34 @@
+<!-- deshabilitar.php -->
 <?php
-
 include_once('./inc/conexion.php');
-try {
-    include_once('./inc/conexion.php');
 
-    // Manejar las solicitudes de habilitación/deshabilitación
+try {
+    $type = isset($_POST["type"]) ? $_POST["type"] : "";
+
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        if (isset($_POST["id_mesa"])) {
-            $id_mesa = $_POST["id_mesa"];
-            // Realizar la actualización en la tabla tbl_mesa
+        $id = $_POST["id"];
+
+        if ($type == "mesa") {
             $stmt = $conn->prepare("UPDATE tbl_mesa SET habilitada = NOT habilitada WHERE id_mesa = :id_mesa");
-            $stmt->bindParam(':id_mesa', $id_mesa);
+            $stmt->bindParam(':id_mesa', $id);
             $stmt->execute();
-        } elseif (isset($_POST["id_silla"])) {
-            $id_silla = $_POST["id_silla"];
-            // Realizar la actualización en la tabla tbl_silla
+        } elseif ($type == "silla") {
             $stmt = $conn->prepare("UPDATE tbl_silla SET habilitada = NOT habilitada WHERE id_silla = :id_silla");
-            $stmt->bindParam(':id_silla', $id_silla);
+            $stmt->bindParam(':id_silla', $id);
             $stmt->execute();
-        } elseif (isset($_POST["id_sala"])) {
-            $id_sala = $_POST["id_sala"];
-            // Realizar la actualización en la tabla tbl_sala
+        } elseif ($type == "sala") {
             $stmt = $conn->prepare("UPDATE tbl_sala SET habilitada = NOT habilitada WHERE id_sala = :id_sala");
-            $stmt->bindParam(':id_sala', $id_sala);
+            $stmt->bindParam(':id_sala', $id);
             $stmt->execute();
         }
-    }
 
+        // Obtener el nuevo estado y devolverlo como respuesta
+        $stmt_estado = $conn->prepare("SELECT habilitada FROM tbl_$type WHERE id_$type = :id");
+        $stmt_estado->bindParam(':id', $id);
+        $stmt_estado->execute();
+        $nuevo_estado = $stmt_estado->fetch(PDO::FETCH_COLUMN);
+        echo $nuevo_estado ? "Habilitada" : "Deshabilitada";
+    }
 } catch (PDOException $e) {
     echo "Error de conexión: " . $e->getMessage();
 }

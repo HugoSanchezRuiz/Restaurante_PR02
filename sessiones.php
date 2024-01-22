@@ -17,7 +17,7 @@ if (!isset($_GET['usuario'])) {
             break;
 
         case 'gerente':
-            $redireccion = './admin.php';
+            //$redireccion = './admin.php';
             break;
 
         case 'mantenimiento':

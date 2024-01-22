@@ -1,29 +1,5 @@
 <?php
-include_once('./inc/conexion.php');
-// Obtener la lista de mesas
-$sqlSelectMesas = "SELECT * FROM tbl_mesa";
-$stmtSelectMesas = $conn->prepare($sqlSelectMesas);
-$stmtSelectMesas->execute();
-$mesas = $stmtSelectMesas->fetchAll(PDO::FETCH_ASSOC);
-
-
-// Obtener la lista de sillas
-$sqlSelectSillas = "SELECT * FROM tbl_silla";
-$stmtSelectSillas = $conn->prepare($sqlSelectSillas);
-$stmtSelectSillas->execute();
-$sillas = $stmtSelectSillas->fetchAll(PDO::FETCH_ASSOC);
-
-// Obtener la lista de salas
-$sqlSelectSalas = "SELECT * FROM tbl_sala";
-$stmtSelectSalas = $conn->prepare($sqlSelectSalas);
-$stmtSelectSalas->execute();
-$salas = $stmtSelectSalas->fetchAll(PDO::FETCH_ASSOC);
-
-// Obtener la lista de reservas
-$sqlSelectReservas = "SELECT * FROM tbl_ocupacion";
-$stmtSelectReservas = $conn->prepare($sqlSelectReservas);
-$stmtSelectReservas->execute();
-$reservas = $stmtSelectReservas->fetchAll(PDO::FETCH_ASSOC);
+include_once("./inc/conexion.php");
 
 ?>
 <!DOCTYPE html>
@@ -34,175 +10,7 @@ $reservas = $stmtSelectReservas->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRUD Admin</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap">
-    <style>
-        body {
-            font-family: 'Quicksand', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            place-items: center;
-            background: #0d2b33;
-        }
-
-
-        #container {
-            max-width: 800px;
-            width: 100%;
-            padding: 20px;
-            box-sizing: border-box;
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            align-items: center;
-            justify-content: center;
-            margin: auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        h3 {
-            color: #333;
-        }
-
-        .button {
-            display: inline-block;
-            background-color: #0d2b33;
-            color: white;
-            padding: 12px 20px;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-            cursor: pointer;
-            margin: 5px;
-        }
-
-        .button:hover {
-            background: #0d2b33;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        h3 {
-            color: #333;
-        }
-
-        a {
-            display: inline-block;
-            margin-bottom: 10px;
-            text-decoration: none;
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-
-        a:hover {
-            background-color: #45a049;
-        }
-
-        #crudSection {
-            max-width: 800px;
-            margin: 20px auto;
-        }
-
-        .user-item {
-            background-color: #0d2b33;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-        }
-
-        .usuario-container {
-            display: flex;
-            align-items: center;
-        }
-        
-
-        .btn-container {
-            margin-left: 10px;
-        }
-
-        button {
-            cursor: pointer;
-            padding: 10px 15px;
-            margin-right: 5px;
-            background-color: #0d2b33;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #0d2b33;
-        }
-
-        #updateFormContainer {
-            max-width: 400px;
-            margin-top: 20px;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        label {
-            margin-bottom: 5px;
-        }
-
-        input,
-        select {
-            margin-bottom: 10px;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            background-color: #0d2b33;
-            color: white;
-        }
-
-        input[type="submit"] {
-            background-color: #0d2b33;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #0d2b33;
-            color: white;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-    </style>
+    <link rel="stylesheet" href="./css/admin.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
@@ -210,6 +18,7 @@ $reservas = $stmtSelectReservas->fetchAll(PDO::FETCH_ASSOC);
     <div id="container">
 
         <h3>Página de Administración</h3>
+
         <button id="verUsuarios" class="button">Ver usuarios</button>
         <button id="recurso" class="button">Ver recursos</button>
         <button id="insertar" class="button">Insertar Usuario</button>
@@ -217,15 +26,27 @@ $reservas = $stmtSelectReservas->fetchAll(PDO::FETCH_ASSOC);
         <button id="insertarS" class="button">Insertar Silla</button>
         <button id="insertarSL" class="button">Insertar Sala</button>
 
+        <br>
+        <br>
+
+        <div id="filtro">
+            <form id="frmbusqueda">
+                <label for="buscarUsuario">Buscar por Nombre:</label>
+                <input type="text" name="buscarUsuario" id="buscarUsuario" placeholder="Buscar...">
+            </form>
+        </div>
+
         <div id="formInsertar">
             <h3>Insertar Usuario</h3>
-            <form method="post" id="formI">
+            <form method="post" id="formI" onsubmit="return validar()">
                 <label for="nombre_usuario">Nombre de Usuario:</label>
-                <input type="text" name="nombre_usuario" required>
+                <input type="text" name="usuario" id="usuarioInputI" required>
+                <span id="error_usuario"></span>
                 <label for="contrasena">Contraseña:</label>
-                <input type="password" name="contrasena" required>
+                <input type="password" name="pwd" id="pwdInputI" required>
+                <span id="error_pwd"></span>
                 <label for="tipo_usuario">Tipo de Usuario:</label>
-                <select name="tipo_usuario" required>
+                <select name="tipo_usuario" id="tipoInputI" required>
                     <option value="" disabled selected>Selecciona un tipo</option>
                     <option value="admin">Admin</option>
                     <option value="gerente">Gerente</option>
@@ -239,11 +60,11 @@ $reservas = $stmtSelectReservas->fetchAll(PDO::FETCH_ASSOC);
         </div>
         <div id="formInsertarMesa">
             <h3>Insertar Mesa</h3>
-            <form method="post" id="formM">
+            <form method="post" id="formM" onsubmit="return validarFormulario('formM')">
                 <label for="id_sala">Número Sala:</label>
-                <input type="text" name="id_sala" required>
+                <input type="text" name="id_sala" id="idsalaInputI" required>
                 <label for="capacidad">Capacidad:</label>
-                <input type="text" name="capacidad" required>
+                <input type="text" name="capacidad" id="capacidadInputI" required>
                 <br>
                 <br>
                 <input type="submit" name="insertarM" id="insertarBMesa" value="Insertar Mesa">
@@ -252,9 +73,9 @@ $reservas = $stmtSelectReservas->fetchAll(PDO::FETCH_ASSOC);
 
         <div id="formInsertarSilla">
             <h3>Insertar Silla</h3>
-            <form method="post" id="formS">
+            <form method="post" id="formS" onsubmit="return validarFormulario('formS')">
                 <label for="id_mesa">Número de Mesa:</label>
-                <input type="text" name="id_mesa" required>
+                <input type="text" name="id_mesa" id="idmesaInputI" required>
                 <br>
                 <br>
                 <input type="submit" name="insertarS" id="insertarBSilla" value="Insertar Silla">
@@ -263,138 +84,63 @@ $reservas = $stmtSelectReservas->fetchAll(PDO::FETCH_ASSOC);
 
         <div id="formInsertarSala">
             <h3>Insertar Sala</h3>
-            <form method="post" id="formSL">
+            <form method="post" id="formSL" onsubmit="return validarFormulario('formSL')">
                 <label for="nombre">Nombre:</label>
-                <input type="text" name="nombre" required>
+                <input type="text" name="nombre" id="nombresalaInputI" required>
                 <label for="tipo_sala">Tipo de Sala:</label>
-                <select name="tipo_sala" required>
+                <select name="tipo_sala" id="tiposalaInputI" required>
                     <option value="" disabled selected>Selecciona un tipo</option>
                     <option value="comedor">comedor</option>
                     <option value="terraza">terraza</option>
                     <option value="privada">privada</option>
                 </select>
                 <label for="capacidad">Capacidad:</label>
-                <input type="text" name="capacidad" required>
+                <input type="text" name="capacidad" id="capacidadInputI2" required>
                 <br>
                 <br>
                 <input type="submit" name="insertarSala" id="insertarBSala" value="Insertar Sala">
             </form>
         </div>
         <div id="crudUsuarios"></div>
-        <div id="updateFormContainer"></div>
+        <!-- <div id="updateFormContainer"></div> -->
         <div id="insertFormContainer"></div>
+        <div id="crudRecursos"></div>
 
-        <div id="crudRecursos">
-            <h2>Administrar Mesas</h2>
+        <?php
+        if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["id_usuario"])) {
+            $sqlUsuario = "SELECT id_usuario, nombre_usuario, tipo_usuario FROM tbl_usuario WHERE id_usuario = ?";
+            $stmtUsuario = $conn->prepare($sqlUsuario);
+            $stmtUsuario->execute([$idUsuario]);
 
-            <table border="1">
-                <tr>
-                    <th>ID Mesa</th>
-                    <th>ID Sala</th>
-                    <th>Capacidad</th>
-                    <th>Acciones</th>
-                </tr>
-                <?php foreach ($mesas as $mesa) : ?>
-                    <tr>
-                        <td><?= $mesa['id_mesa'] ?></td>
-                        <td><?= $mesa['id_sala'] ?></td>
-                        <td><?= $mesa['capacidad'] ?></td>
-                        <td>
-                            <button href="editar_mesa.php?id_mesa=<?= $mesa['id_mesa'] ?>">Editar</button>
-                            <button onclick="confirmarEliminacionMesa(<?= $silla['id_mesa'] ?>)">Eliminar</button>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </table>
-            <br>
-            <br>
+            $datosUsuario = $stmtUsuario->fetch(PDO::FETCH_ASSOC);
 
-            <h2>Administrar Sillas</h2>
+            if (!$datosUsuario) {
+                header("Location: ./index.php");
+                exit();
+            }
+        }
+        ?>
+        <div id="updateForm">
+            <form id="updateForm" action="#" method="post">
+                <input type="hidden" name="id_usuario" id="id_usuario" value="<?php echo $datosUsuario['id_usuario']; ?>">
 
-            <table border="1">
-                <tr>
-                    <th>ID Silla</th>
-                    <th>ID Mesa</th>
-                    <th>Acciones</th>
-                </tr>
-                <?php foreach ($sillas as $silla) : ?>
-                    <tr>
-                        <td><?= $silla['id_silla'] ?></td>
-                        <td><?= $silla['id_mesa'] ?></td>
-                        <td>
-                            <button href="editar_silla.php?id_silla=<?= $silla['id_silla'] ?>">Editar</button>
-                            <button onclick="confirmarEliminacionSilla(<?= $silla['id_silla'] ?>)">Eliminar</button>
+                <label for="nombre_usuario">Nuevo Nombre de Usuario:</label>
+                <input type="text" name="nombre_usuario" id="nombre_usuario" value="<?php echo $datosUsuario['nombre_usuario']; ?>" required>
 
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </table>
-            <br>
-            <br>
+                <label for="contrasena">Nueva Contraseña:</label>
+                <input type="password" name="contrasena" id="contrasena">
 
-            <h2>Administrar Salas</h2>
+                <label for="tipo_usuario">Nuevo Tipo de Usuario:</label>
+                <select name="tipo_usuario" id="tipo_usuario" required>
+                    <option value="admin" <?php echo ($datosUsuario['tipo_usuario'] === 'admin') ? 'selected' : ''; ?>>Admin</option>
+                    <option value="gerente" <?php echo ($datosUsuario['tipo_usuario'] === 'gerente') ? 'selected' : ''; ?>>Gerente</option>
+                    <option value="mantenimiento" <?php echo ($datosUsuario['tipo_usuario'] === 'mantenimiento') ? 'selected' : ''; ?>>Mantenimiento</option>
+                    <option value="camarero" <?php echo ($datosUsuario['tipo_usuario'] === 'camarero') ? 'selected' : ''; ?>>Camarero</option>
+                </select>
 
-            <table border="1">
-                <tr>
-                    <th>ID Sala</th>
-                    <th>Nombre</th>
-                    <th>Tipo</th>
-                    <th>Capacidad</th>
-                    <th>Acciones</th>
-                </tr>
-                <?php foreach ($salas as $sala) : ?>
-                    <tr>
-                        <td><?= $sala['id_sala'] ?></td>
-                        <td><?= $sala['nombre'] ?></td>
-                        <td><?= $sala['tipo_sala'] ?></td>
-                        <td><?= $sala['capacidad'] ?></td>
-                        <td>
-                            <button href="editar_sala.php?id_sala=<?= $sala['id_sala'] ?>">Editar</button>
-                            <button onclick="confirmarEliminacionSala(<?= $silla['id_sala'] ?>)">Eliminar</button>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </table>
-            <br>
-            <br>
-
-            <h2>Administrar Reservas/Ocupaciones</h2>
-
-            <table border="1">
-                <tr>
-                    <th>ID Reserva</th>
-                    <th>ID Mesa</th>
-                    <th>ID Usuario</th>
-                    <th>ID Silla</th>
-                    <th>Fecha Reserva</th>
-                    <th>Hora Reserva</th>
-                    <th>Fecha Inicio</th>
-                    <th>Fecha Fin</th>
-                    <th>Es Reserva</th>
-                    <th>Acciones</th>
-                </tr>
-                <?php foreach ($reservas as $reserva) : ?>
-                    <tr>
-                        <td><?= $reserva['id_ocupacion'] ?></td>
-                        <td><?= $reserva['id_mesa'] ?></td>
-                        <td><?= $reserva['id_usuario'] ?></td>
-                        <td><?= $reserva['id_silla'] ?></td>
-                        <td><?= $reserva['fecha_reserva'] ?></td>
-                        <td><?= $reserva['hora_reserva'] ?></td>
-                        <td><?= $reserva['fecha_inicio'] ?></td>
-                        <td><?= $reserva['fecha_fin'] ?></td>
-                        <td><?= $reserva['es_reserva'] ? 'Sí' : 'No' ?></td>
-                        <td>
-                            <button href="editar_reserva.php?id_reserva=<?= $reserva['id_ocupacion'] ?>">Editar</button>
-                            <button href="borrar_reserva.php?id_reserva=<?= $reserva['id_ocupacion'] ?>">Eliminar</button>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </table>
+                <input type="submit" name="actualizar" id="actualizarB" value="Actualizar Usuario">
+            </form>
         </div>
-
-
-
 
         <a href="./index.php" class="button">Volver Login</a>
     </div>
@@ -403,7 +149,8 @@ $reservas = $stmtSelectReservas->fetchAll(PDO::FETCH_ASSOC);
         /////// MOSTRAR CONTENIDOS
 
         // Llamar a la función para mostrar el CRUD al cargar la página
-        document.addEventListener("DOMContentLoaded", function() {
+        window.onload = function() {
+            //document.getElementById("verUsuarios").onclick = MostrarOcultar;
             // Mostrar el CRUD de usuarios al cargar la página
             mostrarCRUDUsuarios();
             ocultarElemento("crudRecursos");
@@ -411,41 +158,56 @@ $reservas = $stmtSelectReservas->fetchAll(PDO::FETCH_ASSOC);
             ocultarElemento("formInsertarMesa");
             ocultarElemento("formInsertarSilla");
             ocultarElemento("formInsertarSala");
+            ocultarElemento("updateForm");
 
             ///// INSERTAR UUSUARIO
 
             document.getElementById("insertarB").addEventListener("click", function(event) {
                 event.preventDefault(); // Evitar la recarga de la página al enviar el formulario
 
-                var form = document.getElementById("formI");
-                var formData = new FormData(form);
+                // Funcion que proteje la contraseña
+                function contieneLetrasYNumeros(str) {
+                    return /[a-zA-Z]/.test(str) && /\d/.test(str);
+                }
+                // Obtenemos los valores de los campos
+                var usuario = document.getElementById('usuarioInputI').value.trim();
+                var pwd = document.getElementById('pwdInputI').value.trim();
+                var tipoUsuario = document.getElementById('tipoInputI').value;
 
-                // Realizar la solicitud AJAX
-                var xhr = new XMLHttpRequest();
-                xhr.onreadystatechange = function() {
-                    if (xhr.readyState == 4) {
-                        if (xhr.status == 200) {
-                            // Éxito al insertar el usuario
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Usuario Insertado',
-                                showConfirmButton: false,
-                                timer: 1500
-                            });
-                            // Puedes realizar acciones adicionales si es necesario
-                        } else {
-                            // Error al insertar el usuario
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error al Insertar Usuario',
-                                text: xhr.responseText
-                            });
-                        }
-                    }
-                };
+                // Validación del nombre de usuario
+                if (usuario === "") {
+                    document.getElementById('error_usuario').innerText = 'Por favor, ingresa el nombre de usuario.';
+                    return false;
+                } else {
+                    document.getElementById('error_usuario').innerText = '';
+                }
 
-                xhr.open("POST", "insertar_usuario.php", true); // Reemplaza "insertar_usuario.php" con la ruta correcta
-                xhr.send(formData);
+                // Validación de la contraseña
+                if (pwd === "") {
+                    document.getElementById('error_pwd').innerText = 'Por favor, ingresa la contraseña.';
+                    return false;
+                } else if (pwd.length < 6) {
+                    document.getElementById('error_pwd').innerText = 'La contraseña debe tener al menos 6 caracteres.';
+                    return false;
+                } else if (!contieneLetrasYNumeros(pwd)) {
+                    document.getElementById('error_pwd').innerText = 'La contraseña debe contener una combinación de letras y números.';
+                    return false;
+                } else {
+                    document.getElementById('error_pwd').innerText = '';
+                }
+
+                // Validación del tipo de usuario
+                if (tipoUsuario === "") {
+                    alert('Por favor, selecciona un tipo de usuario.');
+                    return false;
+                }
+
+                // Otras validaciones según sea necesario
+
+                // Si todo está bien, el formulario se envía
+                insertarUser();
+                return true;
+
             });
 
             ///// INSERTAR MESA
@@ -453,6 +215,8 @@ $reservas = $stmtSelectReservas->fetchAll(PDO::FETCH_ASSOC);
                 event.preventDefault(); // Evitar la recarga de la página al enviar el formulario
 
                 var form = document.getElementById("formM");
+                var idsalaInput = document.getElementById("idsalaInputI");
+                var capacidadInput = document.getElementById("capacidadInputI");
                 var formData = new FormData(form);
 
                 // Realizar la solicitud AJAX
@@ -467,6 +231,8 @@ $reservas = $stmtSelectReservas->fetchAll(PDO::FETCH_ASSOC);
                                 showConfirmButton: true,
                                 timer: 5000
                             });
+                            idsalaInput.value = "";
+                            capacidadInput.value = "";
                             // Puedes realizar acciones adicionales si es necesario
                         } else {
                             // Error al insertar el usuario
@@ -488,6 +254,7 @@ $reservas = $stmtSelectReservas->fetchAll(PDO::FETCH_ASSOC);
                 event.preventDefault(); // Evitar la recarga de la página al enviar el formulario
 
                 var form = document.getElementById("formS");
+                var idmesaInput = document.getElementById("idmesaInputI");
                 var formData = new FormData(form);
 
                 // Realizar la solicitud AJAX
@@ -502,6 +269,7 @@ $reservas = $stmtSelectReservas->fetchAll(PDO::FETCH_ASSOC);
                                 showConfirmButton: true,
                                 timer: 5000
                             });
+                            idmesaInput.value = "";
                             // Puedes realizar acciones adicionales si es necesario
                         } else {
                             // Error al insertar el usuario
@@ -523,6 +291,9 @@ $reservas = $stmtSelectReservas->fetchAll(PDO::FETCH_ASSOC);
                 event.preventDefault(); // Evitar la recarga de la página al enviar el formulario
 
                 var form = document.getElementById("formSL");
+                var nombresalaInput = document.getElementById("nombresalaInputI");
+                var tiposalaInput = document.getElementById("tiposalaInputI");
+                var capacidadInput = document.getElementById("capacidadInputI2");
                 var formData = new FormData(form);
 
                 // Realizar la solicitud AJAX
@@ -537,6 +308,9 @@ $reservas = $stmtSelectReservas->fetchAll(PDO::FETCH_ASSOC);
                                 showConfirmButton: true,
                                 timer: 5000
                             });
+                            capacidadInput.value = "";
+                            tiposalaInput.value = "";
+                            nombresalaInput.value = "";
                             // Puedes realizar acciones adicionales si es necesario
                         } else {
                             // Error al insertar el usuario
@@ -553,151 +327,127 @@ $reservas = $stmtSelectReservas->fetchAll(PDO::FETCH_ASSOC);
                 xhr.send(formData);
             });
 
-            ////// ACTUALIZAR
 
 
-            document.getElementById("actualizarB").addEventListener("click", function(event) {
+            // Se acaba el window.onload
+
+
+            document.getElementById("insertarM").addEventListener("click", function(event) {
                 event.preventDefault(); // Evitar la recarga de la página al enviar el formulario
 
-                var form = document.querySelector("form");
-                var formData = new FormData(form);
+                ocultarElemento("crudUsuarios");
+                ocultarElemento("crudRecursos");
+                ocultarElemento("formInsertar");
+                ocultarElemento("formInsertarSilla");
+                ocultarElemento("formInsertarSala");
+                ocultarElemento("filtro");
 
-                // Realizar la solicitud AJAX
-                var xhr = new XMLHttpRequest();
-                xhr.onreadystatechange = function() {
-                    if (xhr.readyState == 4) {
-                        if (xhr.status == 200) {
-                            // Éxito al actualizar el usuario
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Usuario Actualizado',
-                                showConfirmButton: true,
-                                timer: 5000
-                            });
-                            // Puedes realizar acciones adicionales si es necesario
-                        } else {
-                            // Error al actualizar el usuario
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error al Actualizar Usuario',
-                                text: xhr.responseText
-                            });
-                        }
-                    }
-                };
-
-                xhr.open("POST", "actualizar_usuario.php", true); // Reemplaza "actualizar_usuario.php" con la ruta correcta
-                xhr.send(formData);
+                // Mostrar el form de mesa
+                mostrarElemento("formInsertarMesa");
             });
-        });
 
-        //ACTUALIZAR MOSTRAR
-        function mostrarFormularioActualizacion(idUsuario) {
-            var updateFormContainer = document.getElementById("updateFormContainer");
+            document.getElementById("recurso").addEventListener("click", function() {
+                mostrarCRUDRecurso();
+                // Ocultar el CRUD de usuarios y el formulario de insertar
+                ocultarElemento("crudUsuarios");
+                ocultarElemento("formInsertar");
+                ocultarElemento("formInsertarMesa");
+                ocultarElemento("formInsertarSilla");
+                ocultarElemento("formInsertarSala");
+                ocultarElemento("filtro");
 
-            // Realizar una solicitud AJAX para obtener el contenido del formulario de actualización
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    // Colocar el contenido en el contenedor
-                    updateFormContainer.innerHTML = xhr.responseText;
+                // Mostrar el CRUD de recursos
+                mostrarElemento("crudRecursos");
+            });
+
+            document.getElementById("insertar").addEventListener("click", function() {
+                // Ocultar el CRUD de usuarios y el CRUD de recursos
+                ocultarElemento("crudUsuarios");
+                ocultarElemento("crudRecursos");
+                ocultarElemento("formInsertarMesa");
+                ocultarElemento("formInsertarSilla");
+                ocultarElemento("formInsertarSala");
+                ocultarElemento("filtro");
+
+                // Mostrar el formulario de insertar
+                mostrarElemento("formInsertar");
+            });
+
+            document.getElementById("insertarS").addEventListener("click", function() {
+                // Mostrar el CRUD de usuarios
+                mostrarCRUDUsuarios();
+                // Mostrar el CRUD de recursos
+                mostrarElemento("formInsertarSilla");
+                // Ocultar el CRUD de recursos y el formulario de insertar
+                ocultarElemento("crudUsuarios");
+                ocultarElemento("crudRecursos");
+                ocultarElemento("formInsertar");
+                ocultarElemento("formInsertarMesa");
+                ocultarElemento("formInsertarSala");
+                ocultarElemento("filtro");
+            });
+
+            document.getElementById("insertarSL").addEventListener("click", function() {
+                // Mostrar el CRUD de usuarios
+                mostrarCRUDUsuarios();
+                // Mostrar el CRUD de recursos
+                mostrarElemento("formInsertarSala");
+                // Ocultar el CRUD de recursos y el formulario de insertar
+                ocultarElemento("crudUsuarios");
+                ocultarElemento("crudRecursos");
+                ocultarElemento("formInsertar");
+                ocultarElemento("formInsertarMesa");
+                ocultarElemento("formInsertarSilla");
+                ocultarElemento("filtro");
+            });
+            /////// MOSTRAR U OCULTAR CONTENIDO
+            document.getElementById("verUsuarios").addEventListener("click", function() {
+                // function MostrarOcultar() {
+                // Mostrar el CRUD de usuarios
+                mostrarCRUDUsuarios();
+                // Mostrar el CRUD de recursos
+                mostrarElemento("crudUsuarios");
+                mostrarElemento("filtro");
+                // Ocultar el CRUD de recursos y el formulario de insertar
+                ocultarElemento("crudRecursos");
+                ocultarElemento("formInsertar");
+                ocultarElemento("formInsertarMesa");
+                ocultarElemento("formInsertarSilla");
+                ocultarElemento("formInsertarSala");
+            });
+
+            document.getElementById("act").addEventListener("click", function() {
+                // function MostrarOcultar() {
+                // Mostrar el CRUD de usuarios
+                mostrarCRUDUsuarios();
+                // Mostrar el CRUD de recursos
+                mostrarElemento("crudUsuarios");
+                mostrarElemento("updateForm");
+                // Ocultar el CRUD de recursos y el formulario de insertar
+                ocultarElemento("crudRecursos");
+                ocultarElemento("formInsertar");
+                ocultarElemento("formInsertarMesa");
+                ocultarElemento("formInsertarSilla");
+                ocultarElemento("formInsertarSala");
+                ocultarElemento("filtro");
+            });
+
+            // Función para ocultar un elemento por su ID
+            function ocultarElemento(id) {
+                var elemento = document.getElementById(id);
+                if (elemento) {
+                    elemento.style.display = "none";
                 }
-            };
-            xhr.open("GET", "mostrar_formulario_actualizar.php?id=" + idUsuario, true); // Reemplaza "obtener_formulario_actualizacion.php" con la ruta correcta
-            xhr.send();
-        }
-
-        document.getElementById("verUsuarios").addEventListener("click", function() {
-            // Mostrar el CRUD de usuarios
-            mostrarCRUDUsuarios();
-            // Mostrar el CRUD de recursos
-            mostrarElemento("crudUsuarios");
-            // Ocultar el CRUD de recursos y el formulario de insertar
-            ocultarElemento("crudRecursos");
-            ocultarElemento("formInsertar");
-            ocultarElemento("formInsertarMesa");
-            ocultarElemento("formInsertarSilla");
-            ocultarElemento("formInsertarSala");
-        });
-
-        document.getElementById("insertarM").addEventListener("click", function(event) {
-            event.preventDefault(); // Evitar la recarga de la página al enviar el formulario
-
-            ocultarElemento("crudUsuarios");
-            ocultarElemento("crudRecursos");
-            ocultarElemento("formInsertar");
-            ocultarElemento("formInsertarSilla");
-            ocultarElemento("formInsertarSala");
-
-            // Mostrar el form de mesa
-            mostrarElemento("formInsertarMesa");
-        });
-
-        document.getElementById("recurso").addEventListener("click", function() {
-            // Ocultar el CRUD de usuarios y el formulario de insertar
-            ocultarElemento("crudUsuarios");
-            ocultarElemento("formInsertar");
-            ocultarElemento("formInsertarMesa");
-            ocultarElemento("formInsertarSilla");
-            ocultarElemento("formInsertarSala");
-
-            // Mostrar el CRUD de recursos
-            mostrarElemento("crudRecursos");
-        });
-
-        document.getElementById("insertar").addEventListener("click", function() {
-            // Ocultar el CRUD de usuarios y el CRUD de recursos
-            ocultarElemento("crudUsuarios");
-            ocultarElemento("crudRecursos");
-            ocultarElemento("formInsertarMesa");
-            ocultarElemento("formInsertarSilla");
-            ocultarElemento("formInsertarSala");
-
-            // Mostrar el formulario de insertar
-            mostrarElemento("formInsertar");
-        });
-
-        document.getElementById("insertarS").addEventListener("click", function() {
-            // Mostrar el CRUD de usuarios
-            mostrarCRUDUsuarios();
-            // Mostrar el CRUD de recursos
-            mostrarElemento("formInsertarSilla");
-            // Ocultar el CRUD de recursos y el formulario de insertar
-            ocultarElemento("crudUsuarios");
-            ocultarElemento("crudRecursos");
-            ocultarElemento("formInsertar");
-            ocultarElemento("formInsertarMesa");
-            ocultarElemento("formInsertarSala");
-        });
-
-        document.getElementById("insertarSL").addEventListener("click", function() {
-            // Mostrar el CRUD de usuarios
-            mostrarCRUDUsuarios();
-            // Mostrar el CRUD de recursos
-            mostrarElemento("formInsertarSala");
-            // Ocultar el CRUD de recursos y el formulario de insertar
-            ocultarElemento("crudUsuarios");
-            ocultarElemento("crudRecursos");
-            ocultarElemento("formInsertar");
-            ocultarElemento("formInsertarMesa");
-            ocultarElemento("formInsertarSilla");
-        });
-
-        // Función para ocultar un elemento por su ID
-        function ocultarElemento(id) {
-            var elemento = document.getElementById(id);
-            if (elemento) {
-                elemento.style.display = "none";
             }
-        }
 
-        // Función para mostrar un elemento por su ID
-        function mostrarElemento(id) {
-            var elemento = document.getElementById(id);
-            if (elemento) {
-                elemento.style.display = "block";
+            // Función para mostrar un elemento por su ID
+            function mostrarElemento(id) {
+                var elemento = document.getElementById(id);
+                if (elemento) {
+                    elemento.style.display = "block";
+                }
             }
-        }
+        };
 
 
         ////////////// ELIMINAR
@@ -769,6 +519,23 @@ $reservas = $stmtSelectReservas->fetchAll(PDO::FETCH_ASSOC);
             });
         }
 
+        function confirmarEliminacionReserva(idReserva) {
+            console.log("Confirmar eliminación de silla");
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "Se eliminará la reserva con id: " + idReserva,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, elimina'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    eliminarReservaAjax(idReserva);
+                }
+            });
+        }
+
         function eliminarUsuarioAjax(idUsuario) {
             var xhr = new XMLHttpRequest();
             xhr.onreadystatechange = function() {
@@ -789,7 +556,7 @@ $reservas = $stmtSelectReservas->fetchAll(PDO::FETCH_ASSOC);
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     // Actualizar la página después de eliminar el usuario cada 1 segundo
                     setInterval(function() {
-                        window.location.reload();
+                        mostrarCRUDRecurso();
                     }, 1000);
                 }
             };
@@ -803,7 +570,7 @@ $reservas = $stmtSelectReservas->fetchAll(PDO::FETCH_ASSOC);
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     // Actualizar la página después de eliminar el usuario cada 1 segundo
                     setInterval(function() {
-                        mostrarCRUDUsuarios();
+                        mostrarCRUDRecurso();
                     }, 1000);
                 }
             };
@@ -817,7 +584,7 @@ $reservas = $stmtSelectReservas->fetchAll(PDO::FETCH_ASSOC);
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     // Actualizar la página después de eliminar el usuario cada 1 segundo
                     setInterval(function() {
-                        window.location.reload();
+                        mostrarCRUDRecurso();
                     }, 1000);
                 }
             };
@@ -825,31 +592,18 @@ $reservas = $stmtSelectReservas->fetchAll(PDO::FETCH_ASSOC);
             xhr.send();
         }
 
-        // Nueva función para actualizar dinámicamente los datos en el CRUD var // idUsuario = <php echo $datosUsuario['id_usuario']; ?>;
-        function actualizarUsuarioEnCRUD(datosActualizados) {
-            var idUsuario = datosActualizados.id;
-            var nombreUsuario = datosActualizados.nombre;
-            var tipoUsuario = datosActualizados.tipo;
-            var contrasena = datosActualizados.contrasena;
-
-            // Asignar los valores a los campos del formulario
-            document.getElementsByName("id_usuario")[0].value = idUsuario;
-            document.getElementsByName("nombre_usuario")[0].value = nombreUsuario;
-            document.getElementsByName("tipo_usuario")[0].value = tipoUsuario;
-            document.getElementsByName("contrasena")[0].value = contrasena;
-
-            // Realizar una solicitud AJAX para actualizar dinámicamente los datos en el CRUD
+        function eliminarReservaAjax(idReserva) {
             var xhr = new XMLHttpRequest();
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4 && xhr.status == 200) {
-                    print("Hola");
+                    // Actualizar la página después de eliminar el usuario cada 1 segundo
+                    setInterval(function() {
+                        mostrarCRUDRecurso();
+                    }, 1000);
                 }
             };
-            // var datosActualizados = JSON.parse(xhr.responseText);
-            // actualizarUsuarioEnCRUD(datosActualizados);
-            xhr.open("POST", "actualizar_usuario.php", true);
-            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xhr.send("id=" + idUsuario + "&nombre=" + nombreUsuario + "&tipo=" + tipoUsuario + "&contrasena=" + contrasena);
+            xhr.open("GET", "borrar_reserva.php?id_reserva=" + idReserva, true);
+            xhr.send();
         }
 
 
@@ -868,6 +622,192 @@ $reservas = $stmtSelectReservas->fetchAll(PDO::FETCH_ASSOC);
             };
             xhr.open("GET", "obtener_crud.php", true); // Reemplaza "obtener_crud_usuarios.php" con la ruta correcta
             xhr.send();
+        }
+
+        function mostrarCRUDRecurso() {
+            var crudContainerRecurso = document.getElementById("crudRecursos");
+
+            // Realizar una solicitud AJAX para obtener el contenido del CRUD de usuarios
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    // Colocar el contenido en el contenedor de usuarios
+                    crudContainerRecurso.innerHTML = xhr.responseText;
+                }
+            };
+            xhr.open("GET", "obtener_crud_recurso.php", true); // Reemplaza "obtener_crud_usuarios.php" con la ruta correcta
+            xhr.send();
+        }
+
+        function validarFormulario(formId) {
+            // Obtener el formulario por su ID
+            var formulario = document.getElementById(formId);
+
+            // Obtener todos los elementos de entrada del formulario
+            var inputs = formulario.getElementsByTagName('input');
+            var selects = formulario.getElementsByTagName('select');
+
+            // Validar campos de texto y contraseña
+            for (var i = 0; i < inputs.length; i++) {
+                if (inputs[i].type === 'text' || inputs[i].type === 'password') {
+                    if (inputs[i].value.trim() === '') {
+                        alert('Por favor, complete todos los campos obligatorios.');
+                        return false; // Evita que el formulario se envíe
+                    }
+                }
+            }
+
+            // Validar campos de selección (select)
+            for (var i = 0; i < selects.length; i++) {
+                if (selects[i].value === '') {
+                    alert('Por favor, seleccione un valor para todos los campos obligatorios.');
+                    return false; // Evita que el formulario se envíe
+                }
+            }
+
+            // Si llegamos aquí, todos los campos requeridos están llenos
+            return true;
+        }
+
+        ////// FILTRO
+
+        // Listar usuarios
+        function listarProductos(valor) {
+            var resultado = document.getElementById('resultado');
+
+            var formdata = new FormData();
+            formdata.append('search', valor);
+
+            var ajax = new XMLHttpRequest();
+            ajax.open('POST', 'actualizar_filtro.php');
+
+            ajax.onload = function() {
+                var str = "";
+                if (ajax.status === 200) {
+                    var json = JSON.parse(ajax.responseText);
+                    var divResultado = "";
+                    json.forEach(function(item) {
+                        str = "<div class='search-result' id='resultado_" + item.id_user + "'>";
+                        str += "<p>Username: " + item.username + " | Nombre: " + item.nombre + "</p>";
+
+                        // Verificar si ya se envió una solicitud
+                        if (item.solicitud_enviada) {
+                            str += "<p>Ya has enviado una solicitud a este usuario.</p>";
+                        } else {
+                            // Muestra el botón para enviar la solicitud
+                            str += "<form class='solicitud-form' id='form_" + item.id_user + "'>";
+                            str += "<input type='hidden' name='usuario_id' value='" + item.id_user + "'>";
+                            str += "<button type='button' id='enso' onclick='enviarSolicitud(" + item.id_user + ")'>Enviar Solicitud de Amistad</button>";
+                            str += "</form>";
+                        }
+
+                        str += "</div>";
+                        divResultado += str;
+                    });
+
+                    resultado.innerHTML = divResultado;
+                } else {
+                    resultado.innerText = "Error";
+                }
+            };
+
+            if (valor === "") {
+                resultado.innerHTML = '';
+            } else {
+                ajax.send(formdata);
+            }
+        }
+
+        function actualizarFiltro() {
+            var xhr = new XMLHttpRequest();
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        document.getElementById("resultado").innerHTML = xhr.responseText;
+                    } else {
+                        console.error("Error al actualizar el filtro: " + xhr.status);
+                    }
+                }
+            };
+
+            xhr.open("GET", "actualizar_filtro.php", true);
+            xhr.send();
+        };
+
+        ////// ACTUALIZAR
+
+        document.getElementById("updateForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Evitar la recarga de la página al enviar el formulario
+
+            var form = document.getElementById("updateForm");
+            var formData = new FormData(form);
+
+            // Realizar la solicitud AJAX para actualizar el usuario
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        // Éxito al actualizar el usuario
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Usuario Actualizado',
+                            showConfirmButton: true,
+                            timer: 5000
+                        });
+
+                        // Puedes realizar acciones adicionales si es necesario
+                    } else {
+                        // Error al actualizar el usuario
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error al Actualizar Usuario',
+                            text: xhr.responseText
+                        });
+                    }
+                }
+            };
+
+            xhr.open("POST", "actualizar_usuario.php", true); // Reemplaza "actualizar_usuario.php" con la ruta correcta
+            xhr.send(formData);
+        });
+
+        function insertarUser() {
+            var form = document.getElementById("formI");
+            var usuarioInput = document.getElementById("usuarioInputI");
+            var pwdInput = document.getElementById("pwdInputI");
+            var tipoInput = document.getElementById("tipoInputI");
+            var formData = new FormData(form);
+
+            // Realizar la solicitud AJAX
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        // Éxito al insertar el usuario
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Usuario Insertado',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                        usuarioInput.value = "";
+                        pwdInput.value = "";
+                        tipoInput.value = "";
+                        // Puedes realizar acciones adicionales si es necesario
+                    } else {
+                        // Error al insertar el usuario
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error al Insertar Usuario',
+                            text: xhr.responseText
+                        });
+                    }
+                }
+            };
+
+            xhr.open("POST", "insertar_usuario.php", true); // Reemplaza "insertar_usuario.php" con la ruta correcta
+            xhr.send(formData);
         }
     </script>
 

@@ -30,7 +30,7 @@ CREATE TABLE tbl_mesa (
     ocupada BOOLEAN NOT NULL DEFAULT FALSE,
     ocupacion_maxima INT NOT NULL DEFAULT 0,
     habilitada BOOLEAN NOT NULL DEFAULT TRUE,
-    FOREIGN KEY (id_sala) REFERENCES tbl_sala(id_sala)
+    FOREIGN KEY (id_sala) REFERENCES tbl_sala(id_sala) ON DELETE SET NULL
 );
 
 -- Tabla de Sillas
@@ -38,7 +38,7 @@ CREATE TABLE tbl_silla (
     id_silla INT PRIMARY KEY AUTO_INCREMENT,
     id_mesa INT,
     habilitada BOOLEAN NOT NULL DEFAULT TRUE,
-    FOREIGN KEY (id_mesa) REFERENCES tbl_mesa(id_mesa)
+    FOREIGN KEY (id_mesa) REFERENCES tbl_mesa(id_mesa) ON DELETE CASCADE
 );
 
 -- Tabla de Ocupaciones
@@ -46,15 +46,14 @@ CREATE TABLE tbl_ocupacion (
     id_ocupacion INT PRIMARY KEY AUTO_INCREMENT,
     id_mesa INT,
     id_usuario INT,
-    id_silla INT,
     fecha_reserva DATE,
     hora_reserva TIME,
     fecha_inicio DATETIME NOT NULL,
     fecha_fin DATETIME NULL,
     es_reserva BOOLEAN NOT NULL DEFAULT FALSE,
+    UNIQUE KEY (id_mesa, fecha_reserva, hora_reserva),
     FOREIGN KEY (id_mesa) REFERENCES tbl_mesa(id_mesa),
-    FOREIGN KEY (id_usuario) REFERENCES tbl_usuario(id_usuario),
-    FOREIGN KEY (id_silla) REFERENCES tbl_silla(id_silla)
+    FOREIGN KEY (id_usuario) REFERENCES tbl_usuario(id_usuario)
 );
 
 
@@ -154,7 +153,7 @@ WHERE m.habilitada = TRUE;
 
 
 -- Inserción de Ocupaciones (ocupaciones directas y reservas)
-INSERT INTO tbl_ocupacion (id_mesa, id_usuario, id_silla, fecha_inicio, es_reserva) VALUES
-    (1, 1, 1, '2024-01-20 18:30:00', FALSE),
-    (2, 1, 2, '2024-01-21 19:00:00', TRUE),
-    (3, 2, 1, '2024-01-22 20:00:00', FALSE);
+INSERT INTO tbl_ocupacion (id_mesa, id_usuario, fecha_inicio, es_reserva) VALUES
+    (1, 1, '2024-01-20 18:30:00', FALSE),
+    (2, 1, '2024-01-21 19:00:00', FALSE),
+    (3, 2, '2024-01-22 20:00:00', FALSE);

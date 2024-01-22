@@ -5,20 +5,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hacer Reserva</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2 {
+            color: #333;
+            text-align: center;
+        }
+
+        form {
+            max-width: 400px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        select,
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            background-color: #4caf50;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        a {
+            display: block;
+            text-align: center;
+            color: #333;
+            text-decoration: none;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 
 <body>
 
     <h2>Hacer Reserva</h2>
     <?php
-    //echo $_SESSION['camarero'];
-    ?>
-
-    <?php
     try {
         include_once("./inc/conexion.php");
+        $usuario = $_GET['usuario'];
+        // echo $usuario;
 
-        ?>
+    ?>
 
         <form action='insert_reserva.php' method="post">
             <label for="id_mesa">Seleccionar Mesa:</label>
@@ -40,8 +91,15 @@
             <br>
 
             <label for="fecha_reserva">Fecha de Reserva:</label>
-            <input type="datetime-local" name="fecha_reserva" id="fecha_reserva" required>
+            <input type="date" name="fecha_reserva" id="fecha_reserva" required>
             <br>
+
+            <label for="hora_reserva">Hora de Reserva:</label>
+            <input type="time" name="hora_reserva" id="hora_reserva" required>
+            <br>
+            <input type="hidden" name="usuario" value="<?php echo $usuario; ?>">
+
+
 
             <input type='submit' value='Hacer Reserva'>
 
