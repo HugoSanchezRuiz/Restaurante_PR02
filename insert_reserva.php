@@ -37,6 +37,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $countOcupada = $stmtVerificarOcupada->fetch(PDO::FETCH_ASSOC)['count_ocupada'];
 
             if ($countOcupada > 0) {
+                echo "<br>";
+                echo "<br>";
                 echo "Error: La mesa $id_mesa ya está ocupada en la fecha y hora seleccionadas.";
             } else {
                 // La mesa no está ocupada, se puede hacer la reserva
@@ -58,14 +60,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $stmtActualizarMesa->bindParam(':id_mesa', $id_mesa);
                     $stmtActualizarMesa->execute();
 
+                    echo "<br>";
+                    echo "<br>";
                     echo "Reserva realizada con éxito de la mesa " . $id_mesa . " a nombre de " . $nombre_cliente;
                     echo "<br>";
-                    echo "<a href='./mostrar_mesas.php' class='button'>Volver página principal</a>";
                 } else {
                     echo "Error al hacer la reserva.";
                 }
             }
         } else {
+            echo "<br>";
+            echo "<br>";
             echo "Error: No se encontró al camarero con el nombre proporcionado.";
         }
         $conn = null;
