@@ -38,7 +38,7 @@ h3 {
     display: inline-block;
     background-color: #0d2b33;
     color: white;
-    padding: 12px 20px;
+    padding: 12px 30px;
     text-align: center;
     text-decoration: none;
     border-radius: 5px;
@@ -81,11 +81,21 @@ a:hover {
 .usuario-container {
     display: flex;
     align-items: center;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
 }
 
 
 .btn-container {
     margin-left: 10px;
+    margin-top: 5px;
+}
+
+.btn-container button {
+    padding: 5px 10px;
+    margin-right: 5px;
+    cursor: pointer;
 }
 
 button {
@@ -159,4 +169,18 @@ tr:nth-child(even) {
 
 span {
     color: red;
+}
+
+#act {
+    background-color: #0d2b33;
+    color: white;
+    border: none;
+    padding-bottom: 1px;
+}
+
+#bor {
+    background-color: #0d2b33;
+    color: white;
+    border: none;
+    padding-top: 1px;
 }

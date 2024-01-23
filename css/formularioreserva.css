@@ -1,0 +1,98 @@
+body {
+    font-family: 'Quicksand', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+#container {
+    max-width: 600px;
+    width: 100%;
+    padding: 40px;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+h2 {
+    color: #0d2b33;
+    margin-bottom: 30px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+label {
+    margin-bottom: 15px;
+    color: #0d2b33;
+    font-weight: bold;
+}
+
+select,
+input[type="text"],
+input[type="date"],
+input[type="time"],
+input[type="submit"] {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #0d2b33;
+    border-radius: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+input[type="submit"] {
+    background-color: #0d2b33;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+input[type="submit"]:hover {
+    background-color: #15455a;
+}
+
+a {
+    display: inline-block;
+    text-decoration: none;
+    background-color: #0d2b33;
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
+
+a:hover {
+    background-color: #0d2b33;
+}
+
+#hacerReservaBtn {
+    background-color: #0d2b33;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#hacerReservaBtn:hover {
+    background-color: #15455a;
+}
+
+span {
+    color: red;
+}
