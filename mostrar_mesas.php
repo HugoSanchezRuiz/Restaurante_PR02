@@ -10,17 +10,20 @@ if (!isset($_SESSION['usuario'])) {
 
 $usuario = $_SESSION['usuario'];
 
-$numero_maximo_camareros = 15; // Cambia esto según la cantidad máxima de camareros
+// Realizar una consulta para obtener el ID del usuario por nombre
+$query = "SELECT id_usuario FROM tbl_usuario WHERE nombre_usuario = :nombre";
+$stmt = $conn->prepare($query);
+$stmt->bindParam(':nombre', $usuario, PDO::PARAM_STR);
+$stmt->execute();
 
-$id_camarero = 0;
+// Verificar si la consulta fue exitosa
+if ($stmt) {
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $id_camarero = $row['id_usuario'];
 
-for ($i = 1; $i <= $numero_maximo_camareros; $i++) {
-    $nombre_camarero = 'camarero_' . $i;
-
-    if ($usuario === $nombre_camarero) {
-        $id_camarero = $i;
-        break;
-    }
+} else {
+    // Manejar el error según sea necesario
+    die("Error al obtener el ID del usuario: " . $pdo->errorInfo()[2]);
 }
 
 // Si no se encuentra el camarero, $id_camarero seguirá siendo 0
@@ -131,8 +134,8 @@ $table = isset($_GET['table']) ? $_GET['table'] : null;
     </div>
     <hr class="hr-header">
     <div>
-    <a href="./reserva.php?usuario=<?php echo $usuario; ?>">Reservar</a>
-    <a href="./ver_reservas.php">Ver reservas</a>
+        <a href="./reserva.php?usuario=<?php echo $usuario; ?>">Reservar</a>
+        <a href="./ver_reservas.php">Ver reservas</a>
     </div>
 </header>
 
@@ -143,26 +146,28 @@ function mostrarCamarerosOrdenadosPorMesas($pdo)
     try {
         // Consulta SQL para mostrar los camareros ordenados por la cantidad de mesas que han ocupado
         $sqlCamareros = "
-            SELECT
-                c.nombre as nombre_camarero,
-                COUNT(o.id_mesa) as num_mesas_ocupadas,
-                GROUP_CONCAT(o.id_mesa ORDER BY o.id_mesa) as mesas_ocupadas_ids,
-                GROUP_CONCAT(o.num_veces_ocupada ORDER BY o.id_mesa) as veces_ocupada,
-                GROUP_CONCAT(o.id_ocupacion ORDER BY o.fecha_inicio) as ocupacion_ids,
-                GROUP_CONCAT(DISTINCT o.fecha_inicio ORDER BY o.fecha_inicio) as fechas_inicio
-            FROM tbl_camarero c
-            LEFT JOIN (
-                SELECT
-                    o.id_camarero,
-                    o.id_mesa,
-                    COUNT(*) as num_veces_ocupada,
-                    GROUP_CONCAT(o.id_ocupacion) as id_ocupacion,
-                    GROUP_CONCAT(o.fecha_inicio ORDER BY o.fecha_inicio) as fecha_inicio
-                FROM tbl_ocupacion o
-                GROUP BY o.id_camarero, o.id_mesa
-            ) o ON c.id_camarero = o.id_camarero
-            GROUP BY c.id_camarero
-            ORDER BY num_mesas_ocupadas DESC;
+        SELECT
+        c.nombre_usuario as nombre_camarero,
+        COUNT(o.id_mesa) as num_mesas_ocupadas,
+        GROUP_CONCAT(o.id_mesa ORDER BY o.id_mesa) as mesas_ocupadas_ids,
+        GROUP_CONCAT(o.num_veces_ocupada ORDER BY o.id_mesa) as veces_ocupada,
+        GROUP_CONCAT(o.id_ocupacion ORDER BY o.fecha_inicio) as ocupacion_ids,
+        GROUP_CONCAT(DISTINCT o.fecha_inicio ORDER BY o.fecha_inicio) as fechas_inicio
+    FROM tbl_usuario c
+    LEFT JOIN (
+        SELECT
+            o.id_usuario,
+            o.id_mesa,
+            COUNT(*) as num_veces_ocupada,
+            GROUP_CONCAT(o.id_ocupacion) as id_ocupacion,
+            GROUP_CONCAT(o.fecha_inicio ORDER BY o.fecha_inicio) as fecha_inicio
+        FROM tbl_ocupacion o
+        GROUP BY o.id_usuario, o.id_mesa
+    ) o ON c.id_usuario = o.id_usuario
+    WHERE c.tipo_usuario = 'camarero'
+    GROUP BY c.id_usuario
+    ORDER BY num_mesas_ocupadas DESC;
+    
         ";
 
         $stmtCamareros = $pdo->prepare($sqlCamareros);
@@ -336,7 +341,7 @@ function filtrarMesasPorFecha($pdo, $fechaFiltro)
             {
                 try {
                     $pdo->beginTransaction();
-            
+
                     $sqlSala = "SELECT
                         ms.id_mesa,
                         ms.capacidad,
@@ -347,23 +352,23 @@ function filtrarMesasPorFecha($pdo, $fechaFiltro)
                         tbl_sala sl ON ms.id_sala = sl.id_sala
                     WHERE
                         sl.nombre = :nombreSala";
-            
+
                     $stmtSala = $pdo->prepare($sqlSala);
                     $stmtSala->bindParam(':nombreSala', $nombreSala, PDO::PARAM_STR);
-            
+
                     if (!$stmtSala->execute()) {
                         throw new Exception("Error al ejecutar la consulta");
                     }
-            
+
                     $resultSala = $stmtSala->fetchAll(PDO::FETCH_ASSOC);
-            
+
                     if ($resultSala === false) {
                         throw new Exception("Error al obtener los resultados de la consulta");
                     }
-            
+
                     $numMesas = count($resultSala);
                     $claseFormulario = '';
-            
+
                     if ($numMesas == 2) {
                         $claseFormulario = 'dos-mesas';
                     } elseif ($numMesas == 4) {
@@ -371,23 +376,23 @@ function filtrarMesasPorFecha($pdo, $fechaFiltro)
                     } elseif ($numMesas == 6) {
                         $claseFormulario = 'seis-mesas';
                     }
-            
+
                     echo "<h2 class='migadepan'>Mesas de $nombreSala</h2>";
                     echo "<form method='post' action='cambiar_estado_mesa.php?usuario=" . $_SESSION['usuario'] . "' class='sala-distribucion $claseFormulario'>";
-            
+
                     foreach ($resultSala as $row) {
                         echo "<button type='submit' name='mesa_id' value='" . $row['id_mesa'] . "' ";
                         echo "class='mesa-" . $row['capacidad'];
-            
+
                         if ($row['ocupada']) {
                             echo "-ocupada";
                         }
-            
+
                         echo " mesa-fondo";
                         echo "'>";
                         echo "</button>";
                     }
-            
+
                     echo "</form>";
                     $pdo->commit();
                 } catch (Exception $e) {
@@ -395,7 +400,7 @@ function filtrarMesasPorFecha($pdo, $fechaFiltro)
                     echo "Error: " . $e->getMessage();
                 }
             }
-            
+
 
             if (isset($_POST['terraza_1'])) {
                 mostrarMesas('terraza_1', $conn);
@@ -428,84 +433,84 @@ function filtrarMesasPorFecha($pdo, $fechaFiltro)
             ?>
 
         </div>
+    </div>
+    <div id="filtro">
+        <div class="filtros-separaciones">
+            <div class="margen-1">
+                <h2 class="filtro-margin-top">Mesas Disponibles</h2>
+                <form action="mostrar_mesas.php" method="post">
+                    <select name="capacidadFiltro" class="select-personas">
+                        <option disabled selected>Selecciona opción</option>
+                        <option value="2">2 personas</option>
+                        <option value="3">3 personas</option>
+                        <option value="4">4 personas</option>
+                        <option value="6">6 personas</option>
+                        <option value="8">8 personas</option>
+                        <option value="10">10 personas</option>
+                        <option value="15">15 personas</option>
+                    </select>
+                    <input class="aceptar-select-personas" type="submit" value="Enviar">
+                </form>
+                <div class="margen-2-primera">
+                    <div class="visible" id="capacidadFilter">
+                        <?php
+                        if (isset($_SESSION['capacidadFiltro'])) {
+                            try {
+                                $capacidadFiltro = $_SESSION['capacidadFiltro'];
+                                echo "<div id='capacidadFilter' class='visible'>";
+                                filtrarMesasPorCapacidad($conn, $capacidadFiltro);
+                                echo "</div>";
+                            } catch (PDOException $e) {
+                                echo "Error: " . $e->getMessage();
+                            }
+                        }
+                        ?>
+                    </div>
+                </div>
+            </div>
+            <button class="botones-ocultar" onclick="toggleFilter('capacidadFilter')">Mostrar/Ocultar Filtro de Capacidad</button>
         </div>
-<div id="filtro">
-    <div class="filtros-separaciones">
-        <div class="margen-1">
-            <h2 class="filtro-margin-top">Mesas Disponibles</h2>
-            <form action="mostrar_mesas.php" method="post">
-                <select name="capacidadFiltro" class="select-personas">
-                    <option disabled selected>Selecciona opción</option>
-                    <option value="2">2 personas</option>
-                    <option value="3">3 personas</option>
-                    <option value="4">4 personas</option>
-                    <option value="6">6 personas</option>
-                    <option value="8">8 personas</option>
-                    <option value="10">10 personas</option>
-                    <option value="15">15 personas</option>
-                </select>
-                <input class="aceptar-select-personas" type="submit" value="Enviar">
-            </form>
-            <div class="margen-2-primera">
-                <div class="visible" id="capacidadFilter">
+
+        <div class="filtros-separaciones">
+            <div class="margen-1">
+                <h2 class="filtro-margin-top">Camareros</h2>
+                <h4>(Ordenados por la cantidad de mesas ocupadas)</h4>
+                <br>
+                <div class="margen-2-segunda">
                     <?php
-                    if (isset($_SESSION['capacidadFiltro'])) {
-                        try {
-                            $capacidadFiltro = $_SESSION['capacidadFiltro'];
-                            echo "<div id='capacidadFilter' class='visible'>";
-                            filtrarMesasPorCapacidad($conn, $capacidadFiltro);
-                            echo "</div>";
-                        } catch (PDOException $e) {
-                            echo "Error: " . $e->getMessage();
+                    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                        // Solo asignar las variables de sesión si el formulario ha sido enviado
+                        if (isset($_POST['capacidadFiltro'])) {
+                            $_SESSION['capacidadFiltro'] = $_POST['capacidadFiltro'];
+                        }
+                        if (isset($_POST['fechaFiltro'])) {
+                            $_SESSION['fechaFiltro'] = $_POST['fechaFiltro'];
                         }
                     }
+
+                    echo "<div id='camareroFilter' class='visible'>";
+                    try {
+                        mostrarCamarerosOrdenadosPorMesas($conn);
+                    } catch (PDOException $e) {
+                        echo "Error: " . $e->getMessage();
+                    }
+                    echo "</div>";
                     ?>
                 </div>
             </div>
+            <button class="botones-ocultar" onclick="toggleFilter('camareroFilter')">Mostrar/Ocultar Filtro de Camareros</button>
         </div>
-        <button class="botones-ocultar" onclick="toggleFilter('capacidadFilter')">Mostrar/Ocultar Filtro de Capacidad</button>
     </div>
 
-    <div class="filtros-separaciones">
-        <div class="margen-1">
-            <h2 class="filtro-margin-top">Camareros</h2>
-            <h4>(Ordenados por la cantidad de mesas ocupadas)</h4>
-            <br>
-            <div class="margen-2-segunda">
-                <?php
-                if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                    // Solo asignar las variables de sesión si el formulario ha sido enviado
-                    if (isset($_POST['capacidadFiltro'])) {
-                        $_SESSION['capacidadFiltro'] = $_POST['capacidadFiltro'];
-                    }
-                    if (isset($_POST['fechaFiltro'])) {
-                        $_SESSION['fechaFiltro'] = $_POST['fechaFiltro'];
-                    }
-                }
-
-                echo "<div id='camareroFilter' class='visible'>";
-                try {
-                    mostrarCamarerosOrdenadosPorMesas($conn);
-                } catch (PDOException $e) {
-                    echo "Error: " . $e->getMessage();
-                }
-                echo "</div>";
-                ?>
-            </div>
-        </div>
-        <button class="botones-ocultar" onclick="toggleFilter('camareroFilter')">Mostrar/Ocultar Filtro de Camareros</button>
-    </div>
-</div>
-
-<div id="historial">
-    <div class="filtros-separaciones">
-        <div class="margen-1">
-            <div class="historial">
-                <h2 class="filtro-margin-top">Historial</h2>
-                <div class="margen-2-tercera">
-                    <?php
-                    try {
-                        $sqlHistorial = "SELECT
+    <div id="historial">
+        <div class="filtros-separaciones">
+            <div class="margen-1">
+                <div class="historial">
+                    <h2 class="filtro-margin-top">Historial</h2>
+                    <div class="margen-2-tercera">
+                        <?php
+                        try {
+                            $sqlHistorial = "SELECT
                             m.id_mesa,
                             s.nombre AS nombre_sala,
                             o.fecha_inicio,
@@ -519,57 +524,57 @@ function filtrarMesasPorFecha($pdo, $fechaFiltro)
                         ORDER BY
                             o.fecha_inicio";
 
-                        // Ejecutar la consulta
-                        $resultHistorial = $conn->query($sqlHistorial);
+                            // Ejecutar la consulta
+                            $resultHistorial = $conn->query($sqlHistorial);
 
-                        // Verificar si se obtuvieron resultados
-                        if ($resultHistorial->rowCount() > 0) {
-                            // Mostrar los resultados
-                            foreach ($resultHistorial as $row) {
-                                echo "ID Mesa: " . $row["id_mesa"] . "<br>";
-                                echo "Sala: " . $row["nombre_sala"] . "<br>";
-                                echo "Fecha Inicio: " . $row["fecha_inicio"] . "<br>";
-                                echo "Fecha Fin: " . $row["fecha_fin"] . "<br>";
-                                echo "<br>";
+                            // Verificar si se obtuvieron resultados
+                            if ($resultHistorial->rowCount() > 0) {
+                                // Mostrar los resultados
+                                foreach ($resultHistorial as $row) {
+                                    echo "ID Mesa: " . $row["id_mesa"] . "<br>";
+                                    echo "Sala: " . $row["nombre_sala"] . "<br>";
+                                    echo "Fecha Inicio: " . $row["fecha_inicio"] . "<br>";
+                                    echo "Fecha Fin: " . $row["fecha_fin"] . "<br>";
+                                    echo "<br>";
+                                }
+                            } else {
+                                echo "No se encontraron resultados";
                             }
-                        } else {
-                            echo "No se encontraron resultados";
+                        } catch (PDOException $e) {
+                            echo "Error: " . $e->getMessage();
                         }
-                    } catch (PDOException $e) {
-                        echo "Error: " . $e->getMessage();
-                    }
-                    ?>
+                        ?>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="filtros-separaciones">
-        <div class="margen-1">
-            <h2 class="filtro-margin-top">Historial por fecha</h2>
-            <form action="mostrar_mesas.php" method="post" onsubmit="return validar_fecha()">
-                <input class="select-fecha" type="date" id="fecha" name="fechaFiltro">
-                <input class="aceptar-select-fecha" type="submit" value="Filtrar">
-                <span id="error_fecha"></span>
-            </form>
-            <div class="margen-2-cuarta">
-                <?php
-                if (isset($_SESSION['fechaFiltro'])) {
-                    try {
-                        echo "<div id='fechaFilter' class='visible'>";
-                        filtrarMesasPorFecha($conn, $_SESSION['fechaFiltro']);
-                        echo "</div>";
-                    } catch (PDOException $e) {
-                        echo "Error: " . $e->getMessage();
+        <div class="filtros-separaciones">
+            <div class="margen-1">
+                <h2 class="filtro-margin-top">Historial por fecha</h2>
+                <form action="mostrar_mesas.php" method="post" onsubmit="return validar_fecha()">
+                    <input class="select-fecha" type="date" id="fecha" name="fechaFiltro">
+                    <input class="aceptar-select-fecha" type="submit" value="Filtrar">
+                    <span id="error_fecha"></span>
+                </form>
+                <div class="margen-2-cuarta">
+                    <?php
+                    if (isset($_SESSION['fechaFiltro'])) {
+                        try {
+                            echo "<div id='fechaFilter' class='visible'>";
+                            filtrarMesasPorFecha($conn, $_SESSION['fechaFiltro']);
+                            echo "</div>";
+                        } catch (PDOException $e) {
+                            echo "Error: " . $e->getMessage();
+                        }
                     }
-                }
-                $conn = null; // Cerrar la conexión PDO
-                ?>
+                    $conn = null; // Cerrar la conexión PDO
+                    ?>
+                </div>
             </div>
+            <button class="botones-ocultar" onclick="toggleFilter('fechaFilter')">Mostrar/Ocultar Filtro por Fecha</button><br>
         </div>
-        <button class="botones-ocultar" onclick="toggleFilter('fechaFilter')">Mostrar/Ocultar Filtro por Fecha</button><br>
     </div>
-</div>
-</div>
+    </div>
 </body>
 
 </html>
