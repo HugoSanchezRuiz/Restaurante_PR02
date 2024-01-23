@@ -1,12 +1,3 @@
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-
-<style>
-    html {
-        background-color: #3a5f68;
-        color: #3a5f68;
-    }
-</style>
-
 <?php
 session_start();
 
@@ -15,8 +6,6 @@ include_once("./inc/conexion.php");
 $usuario = $_SESSION['usuario'];
 
 $numero_maximo_camareros = 15; // Cambia esto según la cantidad máxima de camareros
-
-//$id_camarero = 0;
 
 for ($i = 1; $i <= $numero_maximo_camareros; $i++) {
     $nombre_camarero = 'camarero_' . $i;
@@ -51,10 +40,8 @@ if (isset($_POST['mesa_id'])) {
         $stmtEstadoActual->execute();
         $resultEstadoActual = $stmtEstadoActual->fetch(PDO::FETCH_ASSOC);
 
-
         if ($resultEstadoActual) {
             $ocupada = $resultEstadoActual['ocupada'];
-
             // Invierte el estado de ocupación
             $nuevoEstado = !$ocupada;
 
@@ -68,12 +55,13 @@ if (isset($_POST['mesa_id'])) {
             if ($stmtActualizarEstado) {
                 // Si la mesa está ocupada, inserta una nueva fila en tbl_ocupacion con la fecha de inicio
                 if ($nuevoEstado == 1) {
+                    // Modifica la consulta para incluir el ID del camarero
                     $sqlInsertarOcupacion = "INSERT INTO tbl_ocupacion (id_mesa, id_usuario, fecha_inicio, fecha_fin, es_reserva) VALUES (?, ?, NOW(), NULL, FALSE)";
                     $stmtInsertarOcupacion = $conn->prepare($sqlInsertarOcupacion);
                     $stmtInsertarOcupacion->bindParam(1, $mesa_id);
-                    $stmtInsertarOcupacion->bindParam(2, $id_camarero);
+                    $stmtInsertarOcupacion->bindParam(2, $id_camarero); // Usa el id_camarero obtenido
                     $stmtInsertarOcupacion->execute();
-
+            
                     if (!$stmtInsertarOcupacion) {
                         // Si hay un error en la inserción, realiza un rollback
                         $conn->rollBack();
@@ -101,7 +89,9 @@ if (isset($_POST['mesa_id'])) {
                 // Cierra la conexión
                 $conn = null;
 
-
+                // Redirige de nuevo a la página anterior
+                header("Location: ./mostrar_mesas.php");
+                exit();
             } else {
                 // Si hay un error en la actualización, realiza un rollback (deshace todos los cambios hechos)
                 $conn->rollBack();
@@ -114,9 +104,10 @@ if (isset($_POST['mesa_id'])) {
         // Cierra la conexión
         $conn = null;
 
-        // Redirige de nuevo a la página anterior
-        header("Location: ./mostrar_mesas.php");
-        // exit();
+        // Puedes manejar de alguna manera la situación en que el camarero no se encuentra
+        // header("Location: ./index.php");
+        echo "cambio no realizado";
+        exit();
     } catch (PDOException $e) {
         // Manejo de excepciones
         echo "Excepción: " . $e->getMessage();

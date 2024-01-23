@@ -89,6 +89,7 @@ echo "<th>ID Sala</th>";
 echo "<th>Nombre</th>";
 echo "<th>Tipo</th>";
 echo "<th>Capacidad</th>";
+echo "<th>Imagen</th>"; // Agregamos una nueva columna para la imagen
 echo "<th>Acciones</th>";
 echo "</tr>";
 
@@ -98,45 +99,21 @@ foreach ($salas as $sala) {
     echo "<td>{$sala['nombre']}</td>";
     echo "<td>{$sala['tipo_sala']}</td>";
     echo "<td>{$sala['capacidad']}</td>";
+    
+    // Mostrar la imagen
+    echo "<td>";
+    if ($sala['imagen_contenido'] !== null) {
+        $imagenBase64 = base64_encode($sala['imagen_contenido']);
+        $imagenSrc = "data:{$sala['imagen_tipo']};base64,{$imagenBase64}";
+        echo "<img src='{$imagenSrc}' alt='Imagen de la sala' style='max-width: 100px; max-height: 100px;'>";
+    } else {
+        echo "No hay imagen";
+    }
+    echo "</td>";
+    
     echo "<td>";
     echo "<button href='editar_sala.php?id_sala={$sala['id_sala']}'>Editar</button>";
     echo "<button onclick=\"confirmarEliminacionSala({$sala['id_sala']})\">Eliminar</button>";
-    echo "</td>";
-    echo "</tr>";
-}
-
-echo "</table>";
-echo "<br>";
-echo "<br>";
-
-// Operación de Mostrar Ocupaciones
-echo "<h2>Administrar Reservas/Ocupaciones</h2>";
-echo "<table border='1'>";
-echo "<tr>";
-echo "<th>ID Reserva</th>";
-echo "<th>ID Mesa</th>";
-echo "<th>ID Usuario</th>";
-echo "<th>Fecha Reserva</th>";
-echo "<th>Hora Reserva</th>";
-echo "<th>Fecha Inicio</th>";
-echo "<th>Fecha Fin</th>";
-echo "<th>Es Reserva</th>";
-echo "<th>Acciones</th>";
-echo "</tr>";
-
-foreach ($ocupaciones as $ocupacion) {
-    echo "<tr>";
-    echo "<td>{$ocupacion['id_ocupacion']}</td>";
-    echo "<td>{$ocupacion['id_mesa']}</td>";
-    echo "<td>{$ocupacion['id_usuario']}</td>";
-    echo "<td>{$ocupacion['fecha_reserva']}</td>";
-    echo "<td>{$ocupacion['hora_reserva']}</td>";
-    echo "<td>{$ocupacion['fecha_inicio']}</td>";
-    echo "<td>{$ocupacion['fecha_fin']}</td>";
-    echo "<td>{$ocupacion['es_reserva']}</td>";
-    echo "<td>";
-    echo "<button href='editar_reserva.php?id_reserva={$ocupacion['id_ocupacion']}'>Editar</button>";
-    echo "<button onclick=\"confirmarEliminacionReserva({$ocupacion['id_ocupacion']})\">Eliminar</button>";
     echo "</td>";
     echo "</tr>";
 }

@@ -1,4 +1,3 @@
-
 <?php
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
@@ -11,20 +10,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $datetime_reserva = $fecha_reserva . ' ' . $hora_reserva;
         $fecha_fin_reserva = date("Y-m-d H:i:s", strtotime($datetime_reserva . ' + 1 hour'));
 
-        // echo $fecha_reserva;
-        // echo $hora_reserva;
-
-        // Consulta para obtener el ID del camarero
         $sqlObtenerIdCamarero = "SELECT id_usuario FROM tbl_usuario WHERE nombre_usuario = :usuario AND tipo_usuario = 'camarero'";
         $stmtObtenerIdCamarero = $conn->prepare($sqlObtenerIdCamarero);
         $stmtObtenerIdCamarero->bindParam(':usuario', $usuario);
         $stmtObtenerIdCamarero->execute();
 
-        // Verificar si se encontró el camarero
         if ($stmtObtenerIdCamarero->rowCount() > 0) {
             $id_camarero = $stmtObtenerIdCamarero->fetch(PDO::FETCH_ASSOC)['id_usuario'];
-
-
 
             // Verificar si la mesa ya está ocupada en el momento seleccionado
             $sqlVerificarOcupada = "SELECT COUNT(*) as count_ocupada FROM tbl_ocupacion WHERE id_mesa = :id_mesa AND fecha_reserva = :fecha_reserva AND hora_reserva = :hora_reserva";
@@ -39,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($countOcupada > 0) {
                 echo "<br>";
                 echo "<br>";
-                echo "Error: La mesa $id_mesa ya está ocupada en la fecha y hora seleccionadas.";
+                echo "<p style='color: red'>Error: La mesa $id_mesa ya está ocupada en la fecha y hora seleccionadas.</p>";
             } else {
                 // La mesa no está ocupada, se puede hacer la reserva
                 $sql = "INSERT INTO tbl_ocupacion (id_mesa, id_usuario, fecha_reserva, hora_reserva, fecha_inicio, fecha_fin, es_reserva) VALUES (:id_mesa, :id_camarero, :fecha_reserva, :hora_reserva, :fecha_inicio, :fecha_fin_reserva, TRUE)";
@@ -50,8 +42,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt->bindParam(':hora_reserva', $hora_reserva);
                 $stmt->bindParam(':fecha_inicio', $datetime_reserva);
                 $stmt->bindParam(':fecha_fin_reserva', $fecha_fin_reserva);
-
-
 
                 if ($stmt->execute()) {
                     // Actualizar el estado de la mesa a ocupada
@@ -81,11 +71,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     echo "f";
 }
 ?>
-
-
-<!-- SELECT COUNT(*) AS count_ocupada
-FROM tbl_ocupacion
-WHERE id_mesa = 1
-    AND fecha_reserva = '2024-01-22'
-    AND hora_reserva <= '18:30:00'
-    AND (fecha_fin IS NULL OR fecha_fin > '2024-01-22 18:30:00'); -->

@@ -1,7 +1,7 @@
 <?php
 include_once("./inc/conexion.php");
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["id_usuario"])) {
+if (isset($_POST["id_usuario"])) {
     $idUsuario = $_POST["id_usuario"];
     $nombreUsuario = $_POST["nombre_usuario"];
     $tipoUsuario = $_POST["tipo_usuario"];

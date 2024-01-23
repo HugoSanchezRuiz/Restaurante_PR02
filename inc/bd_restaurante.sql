@@ -19,7 +19,11 @@ CREATE TABLE tbl_sala (
     nombre VARCHAR(50) NOT NULL,
     tipo_sala ENUM('terraza', 'comedor', 'privada') NOT NULL,
     capacidad INT NOT NULL,
-    habilitada BOOLEAN NOT NULL DEFAULT TRUE
+    habilitada BOOLEAN NOT NULL DEFAULT TRUE,
+    imagen_nombre VARCHAR(255) DEFAULT NULL,
+    imagen_tipo VARCHAR(255) DEFAULT NULL,
+    imagen_tamano INT DEFAULT NULL,
+    imagen_contenido LONGBLOB DEFAULT NULL
 );
 
 -- Tabla de Mesas

@@ -2,7 +2,7 @@
 include_once("./inc/conexion.php");
 
 // Consulta SQL para obtener las reservas
-$sqlReservas = "SELECT * FROM tbl_ocupacion";
+$sqlReservas = "SELECT * FROM tbl_ocupacion WHERE es_reserva = TRUE";
 $stmtReservas = $conn->query($sqlReservas);
 
 // Obtener todas las filas de reservas
@@ -16,55 +16,9 @@ $reservas = $stmtReservas->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ver Reservas</title>
-    <!-- Agrega aquí tus enlaces a CSS, SweetAlert, etc. -->
     <link rel="stylesheet" href="ruta/a/tu/estilo.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-
-        h1 {
-            text-align: center;
-            color: #3a5f68;
-        }
-
-        table {
-            width: 80%;
-            margin: 20px auto;
-            border-collapse: collapse;
-            background-color: #fff;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-        }
-
-        table,
-        th,
-        td {
-            border: 1px solid #ddd;
-        }
-
-        th,
-        td {
-            padding: 12px;
-            text-align: left;
-        }
-
-        thead {
-            background-color: #3a5f68;
-            color: #fff;
-        }
-
-        tbody tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        tbody tr:hover {
-            background-color: #f1f1f1;
-        }
-    </style>
+    <link rel="stylesheet" href="./css/mostrar.css">
 </head>
 
 <body>
@@ -99,7 +53,10 @@ $reservas = $stmtReservas->fetchAll(PDO::FETCH_ASSOC);
             <?php endforeach; ?>
         </tbody>
     </table>
-    <a href="./mostrar_mesas.php" class="button">Volver atrás</a>
+    <div id="atras">
+        <a href="./mostrar_mesas.php" class="button">Volver atrás</a>
+    </div>
+
 
 </body>
 

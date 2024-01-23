@@ -1,8 +1,8 @@
 <?php
 session_start();
-
+include_once "./inc/conexion.php";
 if (!isset($_GET['usuario'])) {
-    header('Location: ./index.php'); // Redirige a la página de inicio de sesión
+    header('Location: ./index.php'); // Redirige a la página de inicio de sesión si no detecta un usuario
     exit();
 } else {
     $usuarioRecibido = $_GET['usuario'];
@@ -11,29 +11,44 @@ if (!isset($_GET['usuario'])) {
     // Lógica para redireccionar en base al tipo de usuario
     $redireccion = '';
 
-    switch ($usuarioRecibido) {
-        case 'admin':
-            $redireccion = './admin.php';
-            break;
+    $query = "SELECT tipo_usuario FROM tbl_usuario WHERE nombre_usuario = :nombre";
+    $stmt = $conn->prepare($query);
+    $stmt->bindParam(':nombre', $usuarioRecibido, PDO::PARAM_STR);
+    $stmt->execute();
 
-        case 'gerente':
-            //$redireccion = './admin.php';
-            break;
+    // Verificar si la consulta fue exitosa
+    if ($stmt) {
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $tipo_usuario = $row['tipo_usuario'];
 
-        case 'mantenimiento':
-            $redireccion = './mantenimiento.php';
-            break;
-        default:
-            // Verificar si el nombre del usuario contiene la palabra "camarero"
-            if (strpos($usuarioRecibido, 'camarero') !== false) {
+        // Lógica para redirigir en base al tipo de usuario
+        $redireccion = '';
+
+        switch ($tipo_usuario) {
+            case 'admin':
+                $redireccion = './admin.php';
+                break;
+
+            case 'gerente':
+                $redireccion = './admin.php';
+                break;
+
+            case 'mantenimiento':
+                $redireccion = './mantenimiento.php';
+                break;
+
+            case 'camarero':
                 $redireccion = './mostrar_mesas.php';
-            } else {
-                // Si el tipo de usuario no coincide con ningún caso y no contiene la palabra "camarero", redirige a alguna página predeterminada
-                $redireccion = './index.php';
-            }
-            break;
-    }
+                break;
 
+            default:
+                
+        }
+
+    } else {
+        // Manejar el error según sea necesario
+        die("Error al obtener el tipo de usuario: " . $pdo->errorInfo()[2]);
+    }
 ?>
     <!DOCTYPE html>
     <html lang="en">

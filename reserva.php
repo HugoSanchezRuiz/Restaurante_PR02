@@ -23,7 +23,7 @@
                 <select name="id_mesa" id="id_mesa">
                     <option value="" disabled selected>Selecciona una mesa</option>
                     <?php
-                    $stmt = $conn->query("SELECT id_mesa, id_sala, capacidad FROM tbl_mesa WHERE ocupada = FALSE");
+                    $stmt = $conn->query("SELECT id_mesa, id_sala, capacidad FROM tbl_mesa");
                     $mesas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     foreach ($mesas as $mesa) {
@@ -58,7 +58,9 @@
                 <input type="hidden" name="usuario" value="<?php echo $usuario; ?>">
                 <br>
 
-                <input type="button" id="hacerReservaBtn" value="Hacer Reserva" onclick="validarYHacerReserva()">
+                <button type="button" id="hacerReservaBtn" onclick="validarYHacerReserva()">Hacer Reserva</button>
+
+
             </form>
             <a href="./mostrar_mesas.php">Ir atrás</a>
 
@@ -74,23 +76,41 @@
         ?>
     </div>
     <script>
+        function validarFechaReserva() {
+            var fechaReservaInput = document.getElementById('fecha_reserva');
+            var spanError = document.getElementById("error_vacio");
+
+            var fechaReserva = new Date(fechaReservaInput.value);
+            var fechaActual = new Date();
+
+            if (fechaReserva < fechaActual) {
+                spanError.textContent = "No puedes seleccionar una fecha anterior a la actual.";
+                return false;
+            } else {
+                spanError.textContent = ""; // Limpiar el mensaje de error
+                return true;
+            }
+        }
+
         function validarYHacerReserva() {
+            // console.log("validarYHacerReserva() se llama");
             // Validar el formulario antes de enviar la solicitud
             var formulario = document.getElementById('reservaForm');
             var inputs = formulario.querySelectorAll('input, select');
-            var spanError = document.getElementById("error_vacio");
             var validacionExitosa = true;
 
             inputs.forEach(function(input) {
                 if (input.required && input.value.trim() === "") {
-                    spanError.textContent = "Por favor, complete todos los campos.";
+                    document.getElementById("error_vacio").textContent = "Por favor, complete todos los campos.";
                     validacionExitosa = false;
                 }
             });
 
+            // Validar la fecha y realizar la reserva solo si todas las validaciones son exitosas
             if (validacionExitosa) {
-                spanError.textContent = ""; // Limpiar el mensaje de error
-                hacerReserva();
+                if (validarFechaReserva()) {
+                    hacerReserva();
+                }
             }
         }
 
@@ -98,21 +118,25 @@
             var formulario = document.getElementById('reservaForm');
             var datos = new FormData(formulario);
 
+            // Enviar solicitud AJAX al servidor para insertar la reserva
             var xhr = new XMLHttpRequest();
-
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        document.getElementById('mensajeReserva').innerHTML = xhr.responseText;
-                    } else {
-                        console.error("Error al realizar la solicitud: " + xhr.status);
-                    }
+            xhr.open('POST', 'insert_reserva.php', true);
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    // Procesar la respuesta del servidor
+                    document.getElementById("mensajeReserva").innerHTML = xhr.responseText;
+                } else {
+                    console.error('Error al realizar la solicitud.');
                 }
             };
-
-            xhr.open("POST", "insert_reserva.php", true);
             xhr.send(datos);
         }
+
+        // Escuchar el evento 'submit' del formulario
+        document.getElementById('reservaForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Evitar que el formulario se envíe automáticamente
+            validarYHacerReserva();
+        });
     </script>
 
 </body>
