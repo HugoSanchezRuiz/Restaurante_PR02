@@ -36,6 +36,7 @@
 
             echo "<div id='container'>";
             echo "Sala Actualizada"; // Éxito al actualizar la sala
+            echo "</div>";
         } catch (Exception $e) {
             echo "Error al actualizar la sala: " . $e->getMessage();
         }

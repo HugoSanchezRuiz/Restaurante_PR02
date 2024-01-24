@@ -157,6 +157,7 @@ WHERE m.habilitada = TRUE;
 
 
 -- Inserción de Ocupaciones (ocupaciones directas y reservas)
+-- Ejemplo
 INSERT INTO tbl_ocupacion (id_mesa, id_usuario, fecha_inicio, es_reserva) VALUES
     (1, 1, '2024-01-20 18:30:00', FALSE),
     (2, 1, '2024-01-21 19:00:00', FALSE),

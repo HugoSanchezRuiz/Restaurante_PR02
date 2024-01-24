@@ -233,6 +233,21 @@ function mostrarSweetAlert(idUsuario, nombreUsuario, tipoUsuario, contrasena) {
     });
 }
 
+function mostrarSweetAlertMesa(idMesa) {
+    Swal.fire({
+        title: '¿Quieres actualizar esta mesa?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, actualizar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Redirigir a actualizar_mesa.php con los parámetros
+            window.location.href = `actualizar_mesa.php?id_mesa=${idMesa}`;
+        }
+    });
+}
+
 function mostrarSweetAlertSilla(idSilla, idMesa) {
     Swal.fire({
         title: '¿Quieres actualizar esta silla?',

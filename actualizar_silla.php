@@ -32,6 +32,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         echo "<div id='container'>";
         echo "Silla Actualizada"; // Éxito al actualizar la silla
+        echo "<a href='./admin.php'>Volver atrás</a>";
+        echo "</div>";
     } catch (Exception $e) {
         echo "Error al actualizar la silla: " . $e->getMessage();
     }
@@ -49,26 +51,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         // No necesitamos más datos para la actualización de silla
     }
+
+    // Mostrar el formulario
+    echo "<div id='container'>";
+    if (!empty($datosSillaActualizada) && is_array($datosSillaActualizada)) {
+        echo "<h2>Actualizar Silla</h2>";
+        echo "<form id='form-actualizacion-silla' action='' method='POST' onsubmit='return validarFormularioSilla()'>";
+        echo "<label for='id_mesa'>Número de Mesa:</label>";
+        echo "<input type='number' id='id_mesa' name='id_mesa' value='" . htmlspecialchars($idMesa, ENT_QUOTES, 'UTF-8') . "' required>";
+        echo "<span id='error_id_mesa' style='color: red;'></span>";
+
+        echo "<input type='hidden' value='" . (isset($datosSillaActualizada['id_silla']) ? htmlspecialchars($datosSillaActualizada['id_silla'], ENT_QUOTES, 'UTF-8') : '') . "' id='id_silla_actualizacion' name='id_silla'>";
+        echo "<button type='submit' class='btn-submit' onclick='return validarFormularioSilla()'>Actualizar</button>";
+        echo "</form>";
+    } else {
+        echo "<p></p>";
+    }
+    // Volver atrás fuera del formulario
+    echo "<a href='./admin.php'>Volver atrás</a>";
+    echo "</div>";
 }
 ?>
-
-<!-- Formulario de actualización para sillas -->
-<div id='container'>
-    <?php if (!empty($datosSillaActualizada) && is_array($datosSillaActualizada)) : ?>
-        <h2>Actualizar Silla</h2>
-        <form id='form-actualizacion-silla' action='' method='POST' onsubmit='return validarFormularioSilla()'>
-            <label for='id_mesa'>Número de Mesa:</label>
-            <input type='number' id='id_mesa' name='id_mesa' value='<?php echo htmlspecialchars($idMesa, ENT_QUOTES, 'UTF-8'); ?>' required>
-            <span id='error_id_mesa' style='color: red;'></span>
-
-            <input type='hidden' value='<?php echo isset($datosSillaActualizada['id_silla']) ? htmlspecialchars($datosSillaActualizada['id_silla'], ENT_QUOTES, 'UTF-8') : ''; ?>' id='id_silla_actualizacion' name='id_silla'>
-            <button type='submit' class='btn-submit' onclick="return validarFormularioSilla()">Actualizar</button>
-        </form>
-    <?php else : ?>
-        <p></p>
-    <?php endif; ?>
-    <a href="./admin.php">Volver atrás</a>
-</div>
 
 <script>
     function validarFormularioSilla() {

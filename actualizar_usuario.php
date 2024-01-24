@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Actualizar Usuario</title>
     <link rel="stylesheet" href="./css/actualizar.css">
 </head>
 
@@ -87,7 +87,6 @@
     }
     ?>
 
-
     <!-- Formulario de actualización -->
     <div id='container'>
         <?php if (!empty($datosActualizados) && is_array($datosActualizados)) : ?>
@@ -106,12 +105,20 @@
                 <?php endforeach; ?>
                 <input type='hidden' value='<?php echo isset($datosActualizados['id_usuario']) ? htmlspecialchars($datosActualizados['id_usuario'], ENT_QUOTES, 'UTF-8') : ''; ?>' id='id_usuario_actualizacion' name='id_usuario'>
                 <button type='submit' class='btn-submit' onclick="return validarFormulario()">Actualizar</button>
-            <?php else : ?>
-                <p></p>
-            <?php endif; ?>
+                <!-- Volver atrás dentro del formulario cuando se muestra el formulario -->
+                <?php if (!empty($datosActualizados) && is_array($datosActualizados)) : ?>
+                    <a href="./admin.php">Volver atrás</a>
+                <?php endif; ?>
             </form>
+        <?php else : ?>
+            <p></p>
+        <?php endif; ?>
+        <!-- Volver atrás fuera del formulario cuando no se muestra el formulario -->
+        <?php if (empty($datosActualizados) || !is_array($datosActualizados)) : ?>
             <a href="./admin.php">Volver atrás</a>
+        <?php endif; ?>
     </div>
+
 
 
     <!-- Resto del código -->
@@ -147,4 +154,3 @@
 </body>
 
 </html>
-

@@ -118,12 +118,24 @@ include_once("./inc/conexion.php");
         </div>
         <div id="crudUsuarios"></div>
         <div id="insertFormContainer"></div>
+
+
+        <div id="filtro1">
+            <form id="frmbusqueda1">
+                <label for="buscarMesa">Buscar por ID de mesa:</label>
+                <input type="text" name="buscarMesa" id="buscarMesa" placeholder="Buscar...">
+            </form>
+        </div>
+        <div id="filtro_mesa"></div>
         <div id="crudRecursos"></div>
 
 
         <a href="./index.php" class="button">Volver Login</a>
     </div>
     <script src="./admin.js"></script>
+    <script>
+        setInterval(mostrarCRUDUsuarios, 1000);
+    </script>
 
 </body>
 
