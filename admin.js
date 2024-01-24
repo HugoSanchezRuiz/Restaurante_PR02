@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var resultadoContainer = document.getElementById('crudUsuarios');
     var buscarUsuarioInput = document.getElementById('buscarUsuario');
 
-    buscarUsuarioInput.addEventListener('input', function () {
+    buscarUsuarioInput.addEventListener('keyup', function () {
         var searchValue = buscarUsuarioInput.value;
 
         var xhr = new XMLHttpRequest();
@@ -19,9 +19,39 @@ document.addEventListener("DOMContentLoaded", function () {
 
         xhr.send('buscarUsuario=' + encodeURIComponent(searchValue));
     });
+
+
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    var formBusqueda = document.getElementById('frmbusqueda1');
+    var resultadoContainer = document.getElementById('filtro_mesa');
+    var buscarMesaInput = document.getElementById('buscarMesa');
+
+    buscarMesaInput.addEventListener('keyup', function () {
+        var searchValue = buscarMesaInput.value;
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'filtro_mesa.php', true);
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                resultadoContainer.innerHTML = xhr.responseText;
+            }
+        };
+
+        xhr.send('buscarMesa=' + encodeURIComponent(searchValue));
+    });
+
+    // Evitar el envío del formulario al presionar "Enter"
+    formBusqueda.addEventListener('submit', function (event) {
+        event.preventDefault();
+    });
 });
 // Llamar a la función para mostrar el CRUD al cargar la página
 window.onload = function () {
+
     //document.getElementById("verUsuarios").onclick = MostrarOcultar;
     // Mostrar el CRUD de usuarios al cargar la página
     if (!document.getElementById('buscarUsuario').value.trim()) {
@@ -32,7 +62,10 @@ window.onload = function () {
     ocultarElemento("formInsertarMesa");
     ocultarElemento("formInsertarSilla");
     ocultarElemento("formInsertarSala");
+    ocultarElemento("filtro1");
     ocultarElemento("updateForm");
+    ocultarElemento("filtro_mesa");
+
 
     ///// INSERTAR USUARIO
 
@@ -81,6 +114,7 @@ window.onload = function () {
         return true;
 
     });
+
 
     ///// INSERTAR MESA
     document.getElementById("insertarBMesa").addEventListener("click", function (event) {
@@ -183,6 +217,53 @@ window.onload = function () {
 // Se acaba el window.onload
 
 
+// ACTUALIZAR
+function mostrarSweetAlert(idUsuario, nombreUsuario, tipoUsuario, contrasena) {
+    Swal.fire({
+        title: '¿Quieres actualizar este usuario?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, actualizar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Redirigir a actualizar_usuario.php con los parámetros
+            window.location.href = `actualizar_usuario.php?id_usuario=${idUsuario}&nombre_usuario=${nombreUsuario}&tipo_usuario=${tipoUsuario}&contrasena=${contrasena}`;
+        }
+    });
+}
+
+function mostrarSweetAlertSilla(idSilla, idMesa) {
+    Swal.fire({
+        title: '¿Quieres actualizar esta silla?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, actualizar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Redirigir a actualizar_silla.php con los parámetros
+            window.location.href = `actualizar_silla.php?id_silla=${idSilla}&id_mesa=${idMesa}`;
+        }
+    });
+}
+
+function mostrarSweetAlertSala(idSala, nombreSala, tipoSala, capacidad, imagen) {
+    Swal.fire({
+        title: '¿Quieres actualizar esta sala?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, actualizar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Redirigir a actualizar_sala.php con los parámetros
+            window.location.href = `actualizar_sala.php?id_sala=${idSala}&nombre_sala=${nombreSala}&tipo_sala=${tipoSala}&capacidad=${capacidad}&imagen=${imagen}`;
+        }
+    });
+}
+
+
 
 
 
@@ -196,7 +277,9 @@ document.getElementById("insertarM").addEventListener("click", function (event) 
     ocultarElemento("formInsertar");
     ocultarElemento("formInsertarSilla");
     ocultarElemento("formInsertarSala");
+    ocultarElemento("filtro1");
     ocultarElemento("filtro");
+    ocultarElemento("filtro_mesa");
 
     // Mostrar el form de mesa
     mostrarElemento("formInsertarMesa");
@@ -211,9 +294,13 @@ document.getElementById("recurso").addEventListener("click", function () {
     ocultarElemento("formInsertarSilla");
     ocultarElemento("formInsertarSala");
     ocultarElemento("filtro");
+    ocultarElemento("filtro_mesa");
+    
 
     // Mostrar el CRUD de recursos
     mostrarElemento("crudRecursos");
+    mostrarElemento("filtro1");
+    mostrarElemento("filtro_mesa");
 });
 
 document.getElementById("insertar").addEventListener("click", function () {
@@ -223,6 +310,8 @@ document.getElementById("insertar").addEventListener("click", function () {
     ocultarElemento("formInsertarMesa");
     ocultarElemento("formInsertarSilla");
     ocultarElemento("formInsertarSala");
+    ocultarElemento("filtro_mesa");
+    ocultarElemento("filtro1");
     ocultarElemento("filtro");
 
     // Mostrar el formulario de insertar
@@ -240,7 +329,9 @@ document.getElementById("insertarS").addEventListener("click", function () {
     ocultarElemento("formInsertar");
     ocultarElemento("formInsertarMesa");
     ocultarElemento("formInsertarSala");
+    ocultarElemento("filtro_mesa");
     ocultarElemento("filtro");
+    ocultarElemento("filtro1");
 });
 
 document.getElementById("insertarSL").addEventListener("click", function () {
@@ -254,6 +345,8 @@ document.getElementById("insertarSL").addEventListener("click", function () {
     ocultarElemento("formInsertar");
     ocultarElemento("formInsertarMesa");
     ocultarElemento("formInsertarSilla");
+    ocultarElemento("filtro_mesa");
+    ocultarElemento("filtro1");
     ocultarElemento("filtro");
 });
 /////// MOSTRAR U OCULTAR CONTENIDO
@@ -270,6 +363,8 @@ document.getElementById("verUsuarios").addEventListener("click", function () {
     ocultarElemento("formInsertarMesa");
     ocultarElemento("formInsertarSilla");
     ocultarElemento("formInsertarSala");
+    ocultarElemento("filtro_mesa");
+    ocultarElemento("filtro1");
 });
 
 // Función para ocultar un elemento por su ID
@@ -287,6 +382,8 @@ function mostrarElemento(id) {
         elemento.style.display = "block";
     }
 }
+
+
 
 
 ////////////// ELIMINAR
@@ -477,8 +574,6 @@ function mostrarCRUDRecurso() {
     xhr.send();
 }
 
-////// ACTUALIZAR
-
 
 //// INSERTAR
 
@@ -643,7 +738,7 @@ function insertarSala() {
                         icon: 'success',
                         title: 'Sala Insertada',
                         showConfirmButton: true,
-                        text: xhr.responseText,
+                        text: "Sala Insertada",
                         timer: 5000
                     });
                     capacidadInput.value = "";
@@ -651,6 +746,15 @@ function insertarSala() {
                     nombresalaInput.value = "";
                     imagenInput.value = "";
                 } else {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sala Insertada',
+                        showConfirmButton: true,
+                        text: "Sala Insertada",
+                        timer: 5000
+                    });
+                }
+                if (xhr.responseText === "Error: El nombre de la sala ya existe.") {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error al Insertar Sala',
@@ -673,3 +777,6 @@ function insertarSala() {
     xhr.open("POST", "insertar_sala.php", true);
     xhr.send(formData);
 }
+
+
+

@@ -46,7 +46,7 @@ foreach ($mesas as $mesa) {
     echo "<td>{$mesa['id_sala']}</td>";
     echo "<td>{$mesa['capacidad']}</td>";
     echo "<td>";
-    echo "<button href='editar_mesa.php?id_mesa={$mesa['id_mesa']}'>Editar</button>";
+    echo "<button onclick=\"mostrarSweetAlertMesa('{$mesa['id_mesa']}', '{$mesa['id_sala']}', '{$mesa['capacidad']}')\"\>Editar</button>";
     echo "<button onclick=\"confirmarEliminacionMesa({$mesa['id_mesa']})\">Eliminar</button>";
     echo "</td>";
     echo "</tr>";
@@ -71,7 +71,7 @@ foreach ($sillas as $silla) {
     echo "<td>{$silla['id_silla']}</td>";
     echo "<td>{$silla['id_mesa']}</td>";
     echo "<td>";
-    echo "<button href='editar_silla.php?id_silla={$silla['id_silla']}'>Editar</button>";
+    echo "<button onclick=\"mostrarSweetAlertSilla('{$silla['id_silla']}', '{$silla['id_mesa']}', '')\">Editar</button>";
     echo "<button onclick=\"confirmarEliminacionSilla({$silla['id_silla']})\">Eliminar</button>";
     echo "</td>";
     echo "</tr>";
@@ -112,8 +112,8 @@ foreach ($salas as $sala) {
     echo "</td>";
     
     echo "<td>";
-    echo "<button href='editar_sala.php?id_sala={$sala['id_sala']}'>Editar</button>";
-    echo "<button onclick=\"confirmarEliminacionSala({$sala['id_sala']})\">Eliminar</button>";
+    echo "<button onclick=\"mostrarSweetAlertSala('{$sala['id_sala']}', '{$sala['nombre']}', '{$sala['tipo_sala']}', '{$sala['capacidad']}')\">Editar</button>";
+    echo "<button onclick=\"confirmarEliminacionSala('{$sala['id_sala']}')\">Eliminar</button>";
     echo "</td>";
     echo "</tr>";
 }
